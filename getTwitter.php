@@ -14,6 +14,7 @@ require 'tmhUtilities.php';
 
 $params = array();
 $params['delimited'] = 'length'; // Provides the length of the status messages
+$params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // ---------------------------------------------------------
 // Streaming API time limit and bounding box settings
@@ -27,16 +28,16 @@ set_time_limit($time_limit + 30);
 
 // $params['locations'] = ...;
 
-// ------------------------------------------
-// Read the query string
-// ------------------------------------------
+// -------------------------------------------------------
+// Set the keywords to search for in streaming tweets
+// -------------------------------------------------------
 
 // $params['track'] = " ";
-$params['track'] = "mets";
+$params['track'] = 'mets';
 
-// ------------------------------------------
+// ---------------------------------------------
 // Define callback function for Streaming API
-// ------------------------------------------
+// ---------------------------------------------
 
 function my_streaming_callback($data, $length, $metrics) 
 {
@@ -64,11 +65,31 @@ function my_streaming_callback($data, $length, $metrics)
 	// echo "{$data['id_str']}\t{$date}\t{$data['text']}" . PHP_EOL . "<br />";
 
 	$outputString = "id_str: " . "{$data['id_str']}" . " date created: " . "{$data['created_at']}" . "\n";
+	$outputString = "{$outputString}" . "Tweet text: " . "{$data['text']}" . "\n";
+	$outputString = "{$outputString}" . "User: " . "{$data['user']}" . "\n";
+	$outputString = "{$outputString}" . "Coordinates: " . "{$data['coordinates']}" . "\n";
 	if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 	{
 		// FALSE indicates that an error occurred during the fwrite operation
 	}
-	$outputString = "\tTweet text: " . "{$data['text']}" . "\n";
+	// TODO: order the "features" according to their believed importance for this project (not alphabetical)
+	// TODO: check and address null or empty values?
+	$outputString = "\tContributors: " . "{$data['contributors']}" . "\n";
+	$outputString = "{$outputString}" . "\tEntities: " . "{$data['entities']}" . "\n"; // TODO: add additional processing for these
+	$outputString = "{$outputString}" . "\tFavorite Count: " . "{$data['favorite_count']}" . "\n";
+	$outputString = "{$outputString}" . "\tFilter Level: " . "{$data['filter_level']}" . "\n";
+	$outputString = "{$outputString}" . "\tIn reply to data...\n";
+	$outputString = "{$outputString}" . "\t\tIn reply to Screen Name: " . "{$data['in_reply_to_screen_name']}" . "\n";
+	$outputString = "{$outputString}" . "\t\tIn reply to Status ID: " . "{$data['in_reply_to_status_id_str']}" . "\n";
+	$outputString = "{$outputString}" . "\t\tIn reply to User ID: " . "{$data['in_reply_to_user_id_str']}" . "\n";
+	$outputString = "{$outputString}" . "\tPlace: " . "{$data['place']}" . "\n"; // Note that this is different from Coordinates
+	$outputString = "{$outputString}" . "\tPossibly Sensitive: " . "{$data['possibly_sensitive']}" . "\n";
+	$outputString = "{$outputString}" . "\tQuoted Status: id = " . "{$data['quoted_status_id_str']}" . " status = " . "{$data['quoted_status']}" . "\n";
+	$outputString = "{$outputString}" . "\tScopes: " . "{$data['scopes']}" . "\n";
+	$outputString = "{$outputString}" . "\tRetweet data...\n";
+	$outputString = "{$outputString}" . "\t\tRetweet Count: " . "{$data['retweet_count']}" . "\n";
+	$outputString = "{$outputString}" . "\t\tRetweeted Status: " . "{$data['retweeted_status']}" . "\n";
+	$outputString = "{$outputString}" . "\tSource: " . "{$data['source']}" . "\n";
 	if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 	{
 		// FALSE indicates that an error occurred during the fwrite operation
