@@ -33,7 +33,6 @@ set_time_limit($time_limit + 30);
 // -------------------------------------------------------
 
 $params['track'] = 'a,the,colts,panthers';
-// $params['track'] = 'colts,panthers';
 
 // ---------------------------------------------
 // Define callback function for Streaming API
@@ -77,7 +76,14 @@ function my_streaming_callback($data, $length, $metrics)
 	{
 		$outputString = "id_str: " . "{$data['id_str']}" . " date created: " . "{$data['created_at']}" . "\n";
 		$outputString = "{$outputString}" . "Tweet text: " . "{$data['text']}" . "\n";
-		$outputString = "{$outputString}" . "User: " . "{$data['user']}" . "\n";
+		$outputString = "{$outputString}" . "User Data...\n";
+		$userData = json_decode($data['user'], true);
+		// BEGIN DEBUG: check the output of the decode functionality
+		print_r($data['user']);
+		// END DEBUG
+		$outputString = "{$outputString}" . "\tFollowing: " . "{$userData['following']}" . "\n";
+		$outputString = "{$outputString}" . "\tFollowers: " . "{$userData['followers_count']}" . "\n";
+		$outputString = "{$outputString}" . "\tNumber of Friends: " . "{$userData['friends_count']}" . "\n";
 		$outputString = "{$outputString}" . "Coordinates: " . "{$data['coordinates']}" . "\n";
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 		{
