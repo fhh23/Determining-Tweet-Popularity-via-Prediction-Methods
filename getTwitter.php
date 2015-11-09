@@ -25,7 +25,8 @@ $time_pre = microtime(true);
 $time_limit = 14400;
 set_time_limit($time_limit + 30);
 
-
+// Set the comma separate list of longitude/latitude pairs
+// to specify bounding boxes for filtering tweets
 // $params['locations'] = ...;
 
 // -------------------------------------------------------
@@ -56,34 +57,29 @@ function my_streaming_callback($data, $length, $metrics)
 
 	// Create the file to which the data will be written
 	// TODO: make the filename dynamic (currently this needs to be changed for any run where we want a unique file)
-	// $outputFile = fopen("data_collection_output.csv", "w");
+	// $outputFile = "data_collection_output.csv";
 	$outputFile = "data_collection_output.txt";
 
-	$data = json_decode($data, true); // Converts the JSON string to a PHP variable (and converts the output into an associative array)
+	// Converts the JSON string to a PHP variable (and converts the output into an associative array)
+	$data = json_decode($data, true); 
 	$data['text'] = str_replace(PHP_EOL, '', $data['text']);
 	// echo "{$data['id_str']}\t{$date}\t{$data['text']}" . PHP_EOL . "<br />";
 
-
-	$retweetCount = $data['retweet_count'];
-	if (0 < $retweetCount)
-	{
-		if (file_put_contents($outputFile, "WINNER! Non-zero retweet count!", FILE_APPEND) === FALSE)
-		{
-			// FALSE indicates that an error occurred during the fwrite operation
-		}
-	}
-	if ( "" != $data['id_str'] )
+	if ( "" != $data['id_str'] ) // Only prints the following information if $data has contents
 	{
 		$outputString = "id_str: " . "{$data['id_str']}" . " date created: " . "{$data['created_at']}" . "\n";
 		$outputString = "{$outputString}" . "Tweet text: " . "{$data['text']}" . "\n";
-		$outputString = "{$outputString}" . "User Data...\n";
-		$userData = json_decode($data['user'], true);
-		// BEGIN DEBUG: check the output of the decode functionality
-		print_r($data['user']);
-		// END DEBUG
-		$outputString = "{$outputString}" . "\tFollowing: " . "{$userData['following']}" . "\n";
+		$userData = $data['user'];
+		$outputString = "{$outputString}" . "User Data for " . "{$userData['name']}" . "...\n";
+		$outputString = "{$outputString}" . "\tScreen Name: " . "{$userData['screen_name']}" . "\n";
+		$outputString = "{$outputString}" . "\tUTC Creation Date: " . "{$userData['created_at']}" . "\n";
+		$outputString = "{$outputString}" . "\tDefault Profile: " . "{$userData['default_profile']}" . "\n";
+		$outputString = "{$outputString}" . "\tDefault Profile Image: " . "{$userData['default_profile_image']}" . "\n";
 		$outputString = "{$outputString}" . "\tFollowers: " . "{$userData['followers_count']}" . "\n";
 		$outputString = "{$outputString}" . "\tNumber of Friends: " . "{$userData['friends_count']}" . "\n";
+		$outputString = "{$outputString}" . "\tMember List Count: " . "{$userData['listed_count']}" . "\n";
+		$outputString = "{$outputString}" . "\tStatuses Count: " . "{$userData['statuses_count']}" . "\n";
+		$outputString = "{$outputString}" . "\tAssociated URL: " . "{$userData['url']}" . "\n";
 		$outputString = "{$outputString}" . "Coordinates: " . "{$data['coordinates']}" . "\n";
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 		{
@@ -103,9 +99,15 @@ function my_streaming_callback($data, $length, $metrics)
 		$outputString = "{$outputString}" . "\tPossibly Sensitive: " . "{$data['possibly_sensitive']}" . "\n";
 		$outputString = "{$outputString}" . "\tQuoted Status: id = " . "{$data['quoted_status_id_str']}" . " status = " . "{$data['quoted_status']}" . "\n";
 		$outputString = "{$outputString}" . "\tScopes: " . "{$data['scopes']}" . "\n";
+		$retweetedStatus = $data['retweeted_status'];
+		// BEGIN DEBUG: print the retweet data
+		// printf_r($retweetedStatus);
+		// END DEBUG
 		$outputString = "{$outputString}" . "\tRetweet data...\n";
-		$outputString = "{$outputString}" . "\t\tRetweet Count: " . "{$data['retweet_count']}" . "\n";
-		$outputString = "{$outputString}" . "\t\tRetweeted Status: " . "{$data['retweeted_status']}" . "\n";
+		$outputString = "{$outputString}" . "\t\tRetweeted Text: " . "{$retweetedStatus['text']}" . "\n";
+		$outputString = "{$outputString}" . "\t\tRetweet Count: " . "{$retweetedStatus['retweet_count']}" . "\n";
+		$outputString = "{$outputString}" . "\t\tFavorite Count: " . "{$retweetedStatus['favorite_count']}" . "\n";
+		// TODO print the entities embedded in the Retweet attributes
 		$outputString = "{$outputString}" . "\tSource: " . "{$data['source']}" . "\n";
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 		{
