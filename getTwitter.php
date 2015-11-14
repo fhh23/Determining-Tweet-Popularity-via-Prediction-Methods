@@ -51,22 +51,22 @@ function my_streaming_callback($data, $length, $metrics)
 		return true;
 	}
 
-	// BEGIN DEBUG: print the JSON before decoding to see all attribute value pairs
-	// echo $data;
-	// END DEBUG
-
-	// Create the file to which the data will be written
-	// TODO: make the filename dynamic (currently this needs to be changed for any run where we want a unique file)
-	// $outputFile = "data_collection_output.csv";
-	$outputFile = "data_collection_output.txt";
+	// Use the filename created before the streaming request post
+	global $outputFile;
 
 	// Converts the JSON string to a PHP variable (and converts the output into an associative array)
 	$data = json_decode($data, true); 
-	$data['text'] = str_replace(PHP_EOL, '', $data['text']);
-	// echo "{$data['id_str']}\t{$date}\t{$data['text']}" . PHP_EOL . "<br />";
-
-	if ( "" != $data['id_str'] ) // Only prints the following information if $data has contents
+	if(!is_null($data['text'])) // Only prints the tweet information if $data has valid contents
 	{
+		$data['text'] = str_replace(PHP_EOL, '', $data['text']);
+		
+		// Print CSV file headers
+		$dataHeaders = "contributors,coordinates,created_at,entities,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user,withheld_copyright,withheld_in_countries,witheld_scope\n";
+		if (file_put_contents($outputFile, $dataHeaders) === FALSE) // Caution: overwrites any current data in the file
+		{
+			// FALSE indicates that an error occurred during the fwrite operation
+		}
+
 		$outputString = "id_str: " . "{$data['id_str']}" . " date created: " . "{$data['created_at']}" . "\n";
 		$outputString = "{$outputString}" . "Tweet text: " . "{$data['text']}" . "\n";
 		$userData = $data['user'];
@@ -137,6 +137,10 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // ------------------------------------------
 // Get tweets
 // ------------------------------------------
+
+// Create the file to which the data will be written
+$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
+// print_r($outputFile);
 
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
