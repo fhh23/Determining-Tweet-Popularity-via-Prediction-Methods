@@ -33,7 +33,7 @@ set_time_limit($time_limit + 30);
 // Set the keywords to search for in streaming tweets
 // -------------------------------------------------------
 
-$params['track'] = 'a,the,colts,panthers';
+$params['track'] = 'a,the,colts,panthers,paris,isis';
 
 // ---------------------------------------------
 // Define callback function for Streaming API
@@ -60,59 +60,18 @@ function my_streaming_callback($data, $length, $metrics)
 	{
 		$data['text'] = str_replace(PHP_EOL, '', $data['text']);
 		
-		// Print CSV file headers
-		$dataHeaders = "contributors,coordinates,created_at,entities,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user,withheld_copyright,withheld_in_countries,witheld_scope\n";
-		if (file_put_contents($outputFile, $dataHeaders) === FALSE) // Caution: overwrites any current data in the file
-		{
-			// FALSE indicates that an error occurred during the fwrite operation
-		}
-
-		$outputString = "id_str: " . "{$data['id_str']}" . " date created: " . "{$data['created_at']}" . "\n";
-		$outputString = "{$outputString}" . "Tweet text: " . "{$data['text']}" . "\n";
-		$userData = $data['user'];
-		$outputString = "{$outputString}" . "User Data for " . "{$userData['name']}" . "...\n";
-		$outputString = "{$outputString}" . "\tScreen Name: " . "{$userData['screen_name']}" . "\n";
-		$outputString = "{$outputString}" . "\tUTC Creation Date: " . "{$userData['created_at']}" . "\n";
-		$outputString = "{$outputString}" . "\tDefault Profile: " . "{$userData['default_profile']}" . "\n";
-		$outputString = "{$outputString}" . "\tDefault Profile Image: " . "{$userData['default_profile_image']}" . "\n";
-		$outputString = "{$outputString}" . "\tFollowers: " . "{$userData['followers_count']}" . "\n";
-		$outputString = "{$outputString}" . "\tNumber of Friends: " . "{$userData['friends_count']}" . "\n";
-		$outputString = "{$outputString}" . "\tMember List Count: " . "{$userData['listed_count']}" . "\n";
-		$outputString = "{$outputString}" . "\tStatuses Count: " . "{$userData['statuses_count']}" . "\n";
-		$outputString = "{$outputString}" . "\tAssociated URL: " . "{$userData['url']}" . "\n";
-		$outputString = "{$outputString}" . "Coordinates: " . "{$data['coordinates']}" . "\n";
+		$outputString = "{$data['contributors']}" . "," . "{$data['coordinates']}" . "," . "{$data['created_at']}" . "," .  "{$data['entities']}" . "," . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$data['place']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$data['user']}" . "," . "{$data['witheld_copyright']}" . "," . "{$data['witheld_in_countries']}" . "," . "{$data['witheld_scope']}";
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 		{
 			// FALSE indicates that an error occurred during the fwrite operation
 		}
-		// TODO: order the "features" according to their believed importance for this project (not alphabetical)
-		// TODO: check and address null or empty values?
-		$outputString = "\tContributors: " . "{$data['contributors']}" . "\n";
-		$outputString = "{$outputString}" . "\tEntities: " . "{$data['entities']}" . "\n"; // TODO: add additional processing for these
-		$outputString = "{$outputString}" . "\tFavorite Count: " . "{$data['favorite_count']}" . "\n";
-		$outputString = "{$outputString}" . "\tFilter Level: " . "{$data['filter_level']}" . "\n";
-		$outputString = "{$outputString}" . "\tIn reply to data...\n";
-		$outputString = "{$outputString}" . "\t\tIn reply to Screen Name: " . "{$data['in_reply_to_screen_name']}" . "\n";
-		$outputString = "{$outputString}" . "\t\tIn reply to Status ID: " . "{$data['in_reply_to_status_id_str']}" . "\n";
-		$outputString = "{$outputString}" . "\t\tIn reply to User ID: " . "{$data['in_reply_to_user_id_str']}" . "\n";
-		$outputString = "{$outputString}" . "\tPlace: " . "{$data['place']}" . "\n"; // Note that this is different from Coordinates
-		$outputString = "{$outputString}" . "\tPossibly Sensitive: " . "{$data['possibly_sensitive']}" . "\n";
-		$outputString = "{$outputString}" . "\tQuoted Status: id = " . "{$data['quoted_status_id_str']}" . " status = " . "{$data['quoted_status']}" . "\n";
-		$outputString = "{$outputString}" . "\tScopes: " . "{$data['scopes']}" . "\n";
-		$retweetedStatus = $data['retweeted_status'];
-		// BEGIN DEBUG: print the retweet data
-		// printf_r($retweetedStatus);
-		// END DEBUG
-		$outputString = "{$outputString}" . "\tRetweet data...\n";
-		$outputString = "{$outputString}" . "\t\tRetweeted Text: " . "{$retweetedStatus['text']}" . "\n";
-		$outputString = "{$outputString}" . "\t\tRetweet Count: " . "{$retweetedStatus['retweet_count']}" . "\n";
-		$outputString = "{$outputString}" . "\t\tFavorite Count: " . "{$retweetedStatus['favorite_count']}" . "\n";
-		// TODO print the entities embedded in the Retweet attributes
-		$outputString = "{$outputString}" . "\tSource: " . "{$data['source']}" . "\n";
-		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
+		
+		// End the data record
+		if (file_put_contents($outputFile, "\n", FILE_APPEND) === FALSE)
 		{
 			// FALSE indicates that an error occurred during the fwrite operation
 		}
+		
 	}
 
 	return file_exists(dirname(__FILE__) . '/STOP');
@@ -141,6 +100,13 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // Create the file to which the data will be written
 $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 // print_r($outputFile);
+
+// Print CSV file headers
+$dataHeaders = "contributors,coordinates,created_at,entities,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user,withheld_copyright,withheld_in_countries,witheld_scope\n";
+if (file_put_contents($outputFile, $dataHeaders) === FALSE) // Caution: overwrites any current data in the file
+{
+	// FALSE indicates that an error occurred during the fwrite operation
+}
 
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
