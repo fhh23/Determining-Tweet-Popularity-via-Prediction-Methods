@@ -92,40 +92,55 @@ function my_streaming_callback($data, $length, $metrics)
 		
 		// Entities Array printing
 		$entities = $data['entities'];
-		foreach($entities['urls'] as $urls)
+		if(is_array($entities['urls']))
 		{
-			$outputString = "{$outputString}" . "{$urls['expanded_url']}" . ";";
+			foreach($entities['urls'] as $urls)
+			{
+				$outputString = "{$outputString}" . "{$urls['expanded_url']}" . ";";
+			}
+			unset($urls);
+			$outputString = rtrim($outputString, ';');
 		}
-		unset($urls);
-		$outputString = rtrim($outputString, ';');
 		$outputString = "{$outputString}" . ",";
-		foreach($entities['user_mentions'] as $userMentions)
+		if(is_array($entities['user_mentions']))
 		{
-			$outputString = "{$outputString}" . "{$userMentions['id_str']}" . ";";
+			foreach($entities['user_mentions'] as $userMentions)
+			{
+				$outputString = "{$outputString}" . "{$userMentions['id_str']}" . ";";
+			}
+			unset($userMentions);
+			$outputString = rtrim($outputString, ';');
 		}
-		unset($userMentions);
-		$outputString = rtrim($outputString, ';');
 		$outputString = "{$outputString}" . ",";
-		foreach($entities['user_mentions'] as $userMentions)
+		if(is_array($entities['user_mentions']))
 		{
-			$outputString = "{$outputString}" . "{$userMentions['name']}" . ";";
+			foreach($entities['user_mentions'] as $userMentions)
+			{
+				$outputString = "{$outputString}" . "{$userMentions['name']}" . ";";
+			}
+			unset($userMentions);
+			$outputString = rtrim($outputString, ';');
 		}
-		unset($userMentions);
-		$outputString = rtrim($outputString, ';');
 		$outputString = "{$outputString}" . ",";
-		foreach($entities['user_mentions'] as $userMentions)
+		if(is_array($entities['user_mentions']))
 		{
-			$outputString = "{$outputString}" . "{$userMentions['screen_name']}" . ";";
+			foreach($entities['user_mentions'] as $userMentions)
+			{
+				$outputString = "{$outputString}" . "{$userMentions['screen_name']}" . ";";
+			}
+			unset($userMentions);
+			$outputString = rtrim($outputString, ';');
 		}
-		unset($userMentions);
-		$outputString = rtrim($outputString, ';');
 		$outputString = "{$outputString}" . ",";
-		foreach($entities['hashtags'] as $hashtags)
+		if(is_array($entities['hashtags']))
 		{
-			$outputString = "{$outputString}" . "{$hashtags['text']}" . ";";
+			foreach($entities['hashtags'] as $hashtags)
+			{
+				$outputString = "{$outputString}" . "{$hashtags['text']}" . ";";
+			}
+			unset($hashtags);
+			$outputString = rtrim($outputString, ';');
 		}
-		unset($hashtags);
-		$outputString = rtrim($outputString, ';');
 		$outputString = "{$outputString}" . ",";
 		if(is_array($entities['media']))
 		{
@@ -137,14 +152,18 @@ function my_streaming_callback($data, $length, $metrics)
 			$outputString = rtrim($outputString, ';');
 		}
 		$outputString = "{$outputString}" . ",";
-		foreach($entities['symbols'] as $symbols)
+		if(is_array($entities['symbols']))
 		{
-			$outputString = "{$outputString}" . "{$symbols['text']}" . ";";
+			foreach($entities['symbols'] as $symbols)
+			{
+				$outputString = "{$outputString}" . "{$symbols['text']}" . ";";
+			}
+			unset($symbols);
+			$outputString = rtrim($outputString, ';');
 		}
-		unset($symbols);
-		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
 		
-		$outputString = "{$outputString}" . "," . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$place['id']}" . "," . "{$place['place_type']}" . "," . "{$place['full_name']}" . "," . "{$place['country']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$user['id_str']}" . "," . "{$user['name']}" . "," . "{$user['screen_name']}" . "," . "{$user['location']}" . "," . "{$user['created_at']}" . "," . "{$user['statuses_count']}" . "," . "{$user['followers_count']}" . "," . "{$user['friends_count']}" . "," . "{$user['listed_count']}" . "," . "{$user['contributors_enabled']}" . "," . "{$user['geo_enabled']}" . "," . "{$user['protected']}" . "," . "{$user['verified']}" . "," . "{$user['default_profile']}" . "," . "{$user['default_profile_image']}" . "," . "{$user['withheld_in_countries']}" . "," . "{$user['withheld_scope']}" . "," . "{$data['withheld_copyright']}" . "," . "{$data['withheld_in_countries']}" . "," . "{$data['withheld_scope']}";
+		$outputString = "{$outputString}" . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$place['id']}" . "," . "{$place['place_type']}" . "," . "{$place['full_name']}" . "," . "{$place['country']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$user['id_str']}" . "," . "{$user['name']}" . "," . "{$user['screen_name']}" . "," . "{$user['location']}" . "," . "{$user['created_at']}" . "," . "{$user['statuses_count']}" . "," . "{$user['followers_count']}" . "," . "{$user['friends_count']}" . "," . "{$user['listed_count']}" . "," . "{$user['contributors_enabled']}" . "," . "{$user['geo_enabled']}" . "," . "{$user['protected']}" . "," . "{$user['verified']}" . "," . "{$user['default_profile']}" . "," . "{$user['default_profile_image']}" . "," . "{$user['withheld_in_countries']}" . "," . "{$user['withheld_scope']}" . "," . "{$data['withheld_copyright']}" . "," . "{$data['withheld_in_countries']}" . "," . "{$data['withheld_scope']}";
 		// END FEATURE PRINTING
 		
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
