@@ -58,9 +58,28 @@ function my_streaming_callback($data, $length, $metrics)
 	$data = json_decode($data, true); 
 	if(!is_null($data['text'])) // Only prints the tweet information if $data has valid contents
 	{
+		// BEGIN DEBUG: create a data dump so that the appropriate way to expand all fields can be determined
+		// if (file_put_contents("data_dump.txt", $data, FILE_APPEND) === FALSE)
+		// {
+			// FALSE indicates that an error occurred during the fwrite operation
+		// }
+		// print_r($data);
+		// END DEBUG
+		
 		$data['text'] = str_replace(PHP_EOL, '', $data['text']);
 		
-		$outputString = "{$data['contributors']}" . "," . "{$data['coordinates']}" . "," . "{$data['created_at']}" . "," .  "{$data['entities']}" . "," . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$data['place']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$data['user']}" . "," . "{$data['witheld_copyright']}" . "," . "{$data['witheld_in_countries']}" . "," . "{$data['witheld_scope']}";
+		// Save any fields that may contain an array in their own variable
+		$coordinates = $data['coordinates'];
+		$entities = $data['entities'];
+		$place = $data['place'];
+		$quotedStatus = $data['quoted_status'];
+		$retweetedStatus = $data['retweeted_status'];
+		$user = $data['user'];
+		$witheldCopyright = $data['witheld_copyright'];
+		$witheldInCountries = $data['witheld_in_countries'];
+		$withld_scope = $data['witheld_scope'];
+		
+		$outputString = "{$data['contributors']}" . "," . "{$coordinates['coordinates']}" . "," . "{$data['created_at']}" . "," .  "{$data['entities']}" . "," . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$place['id']}" . "," . "{$place['place_type']}" . "," . "{$place['full_name']}" . "," . "{$place['country']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$data['user']}" . "," . "{$data['witheld_copyright']}" . "," . "{$data['witheld_in_countries']}" . "," . "{$data['witheld_scope']}";
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 		{
 			// FALSE indicates that an error occurred during the fwrite operation
@@ -102,11 +121,18 @@ $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 // print_r($outputFile);
 
 // Print CSV file headers
-$dataHeaders = "contributors,coordinates,created_at,entities,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user,withheld_copyright,withheld_in_countries,witheld_scope\n";
+$dataHeaders = "contributors,coordinates,created_at,entities,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place_id,place_type,place_full_name,place_country,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user,withheld_copyright,withheld_in_countries,witheld_scope\n";
 if (file_put_contents($outputFile, $dataHeaders) === FALSE) // Caution: overwrites any current data in the file
 {
 	// FALSE indicates that an error occurred during the fwrite operation
 }
+
+// BEGIN DEBUG: create a data dump so that the appropriate way to expand all fields can be determined
+// if (file_put_contents("data_dump.txt", "") === FALSE)
+// {
+	// FALSE indicates that an error occurred during the fwrite operation
+// }
+// END DEBUG
 
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
