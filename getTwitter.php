@@ -22,7 +22,7 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-$time_limit = 14400;
+$time_limit = 14400; // 4 hour data collection
 set_time_limit($time_limit + 30);
 
 // Set the comma separate list of longitude/latitude pairs
@@ -33,7 +33,7 @@ set_time_limit($time_limit + 30);
 // Set the keywords to search for in streaming tweets
 // -------------------------------------------------------
 
-$params['track'] = 'a,the,colts,panthers,paris,isis';
+$params['track'] = 'a,the,paris,isis,japan,mexico,earthquake,football,basketball,health,president,democrat,republican';
 
 // ---------------------------------------------
 // Define callback function for Streaming API
@@ -59,11 +59,12 @@ function my_streaming_callback($data, $length, $metrics)
 	if(!is_null($data['text'])) // Only prints the tweet information if $data has valid contents
 	{
 		// BEGIN DEBUG: create a data dump so that the appropriate way to expand all fields can be determined
+		// and necessary extra information can be found
 		// if (file_put_contents("data_dump.txt", $data, FILE_APPEND) === FALSE)
 		// {
 			// FALSE indicates that an error occurred during the fwrite operation
 		// }
-		// print_r($data);
+		print_r($data);
 		// END DEBUG
 		
 		$data['text'] = str_replace(PHP_EOL, '', $data['text']); 
@@ -86,7 +87,55 @@ function my_streaming_callback($data, $length, $metrics)
 		$user['name'] = str_replace(',', '', $user['location']);
 		$place['full_name'] = str_replace(',', '', $place['full_name']);
 		
-		$outputString = "{$data['contributors']}" . "," . "{$coordinates['coordinates']}" . "," . "{$data['created_at']}" . "," .  "{$data['entities']}" . "," . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$place['id']}" . "," . "{$place['place_type']}" . "," . "{$place['full_name']}" . "," . "{$place['country']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$user['id_str']}" . "," . "{$user['name']}" . "," . "{$user['screen_name']}" . "," . "{$user['location']}" . "," . "{$user['created_at']}" . "," . "{$user['statuses_count']}" . "," . "{$user['followers_count']}" . "," . "{$user['friends_count']}" . "," . "{$user['listed_count']}" . "," . "{$user['contributors_enabled']}" . "," . "{$user['geo_enabled']}" . "," . "{$user['protected']}" . "," . "{$user['verified']}" . "," . "{$user['default_profile']}" . "," . "{$user['default_profile_image']}" . "," . "{$user['withheld_in_countries']}" . "," . "{$user['withheld_scope']}" . "," . "{$data['withheld_copyright']}" . "," . "{$data['withheld_in_countries']}" . "," . "{$data['withheld_scope']}";
+		$outputString = "{$data['contributors']}" . "," . "{$coordinates['coordinates']}" . "," . "{$data['created_at']}" . ",";
+		
+		// Entities Array printing
+		$entities = $data['entities'];
+		foreach($media as $entities['media'])
+		{
+			$outputString = "{$outputString}" . "{$media['id_str']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		foreach($urls as $entities['urls'])
+		{
+			$outputString = "{$outputString}" . "{$urls['expanded_url']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		foreach($userMentions as $entities['user_mentions'])
+		{
+			$outputString = "{$outputString}" . "{$userMentions['id_str']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		foreach($userMentions as $entities['user_mentions'])
+		{
+			$outputString = "{$outputString}" . "{$userMentions['name']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		foreach($userMentions as $entities['user_mentions'])
+		{
+			$outputString = "{$outputString}" . "{$userMentions['screen_name']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		foreach($hashtags as $entities['hashtags'])
+		{
+			$outputString = "{$outputString}" . "{$hashtags['text']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		foreach($symbols as $entities['symbols'])
+		{
+			$outputString = "{$outputString}" . "{$symbols['text']}" . ";"
+		}
+		$outputString = rtrim($outputString, ';');
+		$outputString = "{$outputString}" . ",";
+		
+			
+		$outputString = "{$outputString}" . "," . "{$data['favorite_count']}" . "," . "{$data['filter_level']}" . "," . "{$data['id_str']}" . "," . "{$data['in_reply_to_screen_name']}" . "," . "{$data['in_reply_to_status_id_str']}" . "," . "{$data['in_reply_to_user_id_string']}" . "," . "{$place['id']}" . "," . "{$place['place_type']}" . "," . "{$place['full_name']}" . "," . "{$place['country']}" . "," . "{$data['possibly_sensitive']}" . "," . "{$data['quoted_status_id_str']}" . "," . "{$data['quoted_status']}" . "," . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . "," . "{$data['retweeted_status']}" . "," . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$user['id_str']}" . "," . "{$user['name']}" . "," . "{$user['screen_name']}" . "," . "{$user['location']}" . "," . "{$user['created_at']}" . "," . "{$user['statuses_count']}" . "," . "{$user['followers_count']}" . "," . "{$user['friends_count']}" . "," . "{$user['listed_count']}" . "," . "{$user['contributors_enabled']}" . "," . "{$user['geo_enabled']}" . "," . "{$user['protected']}" . "," . "{$user['verified']}" . "," . "{$user['default_profile']}" . "," . "{$user['default_profile_image']}" . "," . "{$user['withheld_in_countries']}" . "," . "{$user['withheld_scope']}" . "," . "{$data['withheld_copyright']}" . "," . "{$data['withheld_in_countries']}" . "," . "{$data['withheld_scope']}";
 		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
 		{
 			// FALSE indicates that an error occurred during the fwrite operation
@@ -128,7 +177,7 @@ $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 // print_r($outputFile);
 
 // Print CSV file headers
-$dataHeaders = "contributors,coordinates,created_at,entities,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place_id,place_type,place_name,place_country,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user_id_str,user_name,user_screenname,user_location,user_creation_date,user_statuses_count,user_followers_count,user_following_count,user_listed_count,user_contributors_enabled,user_geo_enabled,protected_user,verified_user,default_user_profile,default_user_profile_image,user_withheld_in_countries,user_withheld_scope,tweet_withheld_copyright,tweet_withheld_in_countries,tweet_withheld_scope\n";
+$dataHeaders = "contributors,coordinates,created_at,media,urls,user_mentions_id_str,user_mentions_name,user_mentions_screenname,hashtags,symbols,favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place_id,place_type,place_name,place_country,possibly_sensitive,quoted_status_id_str,quoted_status,scopes,retweet_count,retweeted_status,source,text,truncated,user_id_str,user_name,user_screenname,user_location,user_creation_date,user_statuses_count,user_followers_count,user_following_count,user_listed_count,user_contributors_enabled,user_geo_enabled,protected_user,verified_user,default_user_profile,default_user_profile_image,user_withheld_in_countries,user_withheld_scope,tweet_withheld_copyright,tweet_withheld_in_countries,tweet_withheld_scope\n";
 if (file_put_contents($outputFile, $dataHeaders) === FALSE) // Caution: overwrites any current data in the file
 {
 	// FALSE indicates that an error occurred during the fwrite operation
