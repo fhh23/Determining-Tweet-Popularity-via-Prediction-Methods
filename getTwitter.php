@@ -86,12 +86,17 @@ function my_streaming_callback($data, $length, $metrics)
 		$retweetedStatusCoordinates = $retweetedStatus['coordinates'];
 		$retweetedStatusEntities = $retweetedStatus['entities'];
 		$rewteetedStatusPlace = $retweetedStatus['place'];
+		$retweetedStatusQuotedStatus = $retweetedStatus['quoted_status'];
 		$retweetedStatusUser = $retweetedStatus['user'];
 		
 		// Comma pre-processing: all commas needed to be removed or re-encoded to not confuse the CSV file format
-		$data['text'] = str_replace(',', '&#44;', $data['text']); // Substitude the HTML comma code for any comma
-		$quotedStatus['text'] = str_replace(',', '&#44;', $quotedStatus['text']); // Substitude the HTML comma code for any comma
-		$retweetdStatus['text'] = str_replace(',', '&#44;', $retweetedStatus['text']); // Substitude the HTML comma code for any comma
+		// Substitude the HTML comma code for any comma in text
+		$data['text'] = str_replace(',', '&#44;', $data['text']); 
+		$quotedStatus['text'] = str_replace(',', '&#44;', $quotedStatus['text']);
+		$retweetdStatus['text'] = str_replace(',', '&#44;', $retweetedStatus['text']);
+		$quotedStatusRetweetedStatus['text'] = str_replace(',', '&#44;', $quotedStatusRetweetedStatus['text']);
+		$retweetedStatusQuotedStatus['text'] = str_replace(',', '&#44;', $retweetedStatusQuotedStatus['text']);
+		// Remove the commas in other fields and replace with spaces or empty characters
 		$coordinates['coordinates'] = str_replace(',', ' ', $coordinates['coordinates']);
 		$quotedStatusCoordinates['coordinates'] = str_replace(',', ' ', $quotedStatusCoordinates['coordinates']);
 		$retweetedStatusCoordinates['coordinates'] = str_replace(',', ' ', $retweetedStatusCoordinates['coordinates']);
@@ -255,9 +260,83 @@ function my_streaming_callback($data, $length, $metrics)
 		}
 		$outputString = "{$outputString}" . ",";
 		
-		$outputString = "{$outputString}" . "{$quotedStatus['favorite_count']}" . "," . "{$quotedStatus['in_reply_to_screen_name']}" . "," . "{$quotedStatus['in_reply_to_status_id_str']}" . "," . "{$quotedStatus['in_reply_to_user_id_string']}" . "," . "{$quotedStatusPlace['id']}" . "," . "{$quotedStatusPlace['place_type']}" . "," . "{$quotedStatusPlace['full_name']}" . "," . "{$quotedStatusPlace['country']}" . "," . "{$quotedStatus['retweet_count']}". "," . "{$retweetedStatus['id_str']}" . "," . "{$quotedStatus['source']}" . "," . "{$quotedStatus['text']}" . "," . "{$quotedStatusUser['id_str']}" . "," . "{$quotedStatusUser['name']}" . "," . "{$quotedStatusUser['screen_name']}" . "," . "{$quotedStatusUser['location']}" . "," . "{$quotedStatusUser['created_at']}" . "," . "{$quotedStatusUser['statuses_count']}" . "," . "{$quotedStatusUser['followers_count']}" . "," . "{$quotedStatusUser['friends_count']}" . "," . "{$quotedStatusUser['listed_count']}" . "," . "{$quotedStatusUser['contributors_enabled']}" . "," . "{$quotedStatusUser['geo_enabled']}" . "," . "{$quotedStatusUser['protected']}" . "," . "{$quotedStatusUser['verified']}" . "," . "{$quotedStatusUser['default_profile']}" . "," . "{$quotedStatusUser['default_profile_image']}" . "," . "{$quotedStatusUser['withheld_in_countries']}" . "," . "{$quotedStatusUser['withheld_scope']}" . ",";		
+		$outputString = "{$outputString}" . "{$quotedStatus['favorite_count']}" . "," . "{$quotedStatus['in_reply_to_screen_name']}" . "," . "{$quotedStatus['in_reply_to_status_id_str']}" . "," . "{$quotedStatus['in_reply_to_user_id_string']}" . "," . "{$quotedStatusPlace['id']}" . "," . "{$quotedStatusPlace['place_type']}" . "," . "{$quotedStatusPlace['full_name']}" . "," . "{$quotedStatusPlace['country']}" . "," . "{$quotedStatus['retweet_count']}". "," . "{$quotedStatusRetweetedStatus['id_str']}" . "," . "{$quotedStatusRetweetedStatus['text']}" . "," . "{$quotedStatusRetweetedStatus['favorite_count']}" . "," . "{$quotedStatusRetweetedStatus['retweet_count']}" . "," . "{$quotedStatus['source']}" . "," . "{$quotedStatus['text']}" . "," . "{$quotedStatusUser['id_str']}" . "," . "{$quotedStatusUser['name']}" . "," . "{$quotedStatusUser['screen_name']}" . "," . "{$quotedStatusUser['location']}" . "," . "{$quotedStatusUser['created_at']}" . "," . "{$quotedStatusUser['statuses_count']}" . "," . "{$quotedStatusUser['followers_count']}" . "," . "{$quotedStatusUser['friends_count']}" . "," . "{$quotedStatusUser['listed_count']}" . "," . "{$quotedStatusUser['contributors_enabled']}" . "," . "{$quotedStatusUser['geo_enabled']}" . "," . "{$quotedStatusUser['protected']}" . "," . "{$quotedStatusUser['verified']}" . "," . "{$quotedStatusUser['default_profile']}" . "," . "{$quotedStatusUser['default_profile_image']}" . "," . "{$quotedStatusUser['withheld_in_countries']}" . "," . "{$quotedStatusUser['withheld_scope']}" . ",";		
 		$outputString = "{$outputString}" . "{$data['scopes']}" . "," . "{$data['retweet_count']}" . ",";
-		$outputString = "{$outputString}" . "{$data['retweeted_status']}" . ",";
+		$outputString = "{$outputString}" . "{$retweetedStatus['id_str']}" . "," . "{$retweetedStatusCoordinates['coordinates']}" . "," . "{$retweetedStatus['created_at']}" . ",";
+		
+		// Quoted Status Entities Array printing
+		if(is_array($retweetedStatusEntities['urls']))
+		{
+			foreach($retweetedStatusEntities['urls'] as $urls)
+			{
+				$outputString = "{$outputString}" . "{$urls['expanded_url']}" . ";";
+			}
+			unset($urls);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		if(is_array($retweetedStatusEntities['user_mentions']))
+		{
+			foreach($retweetedStatusEntities['user_mentions'] as $userMentions)
+			{
+				$outputString = "{$outputString}" . "{$userMentions['id_str']}" . ";";
+			}
+			unset($userMentions);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		if(is_array($retweetedStatusEntities['user_mentions']))
+		{
+			foreach($retweetedStatusEntities['user_mentions'] as $userMentions)
+			{
+				$outputString = "{$outputString}" . "{$userMentions['name']}" . ";";
+			}
+			unset($userMentions);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		if(is_array($retweetedStatusEntities['user_mentions']))
+		{
+			foreach($retweetedStatusEntities['user_mentions'] as $userMentions)
+			{
+				$outputString = "{$outputString}" . "{$userMentions['screen_name']}" . ";";
+			}
+			unset($userMentions);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		if(is_array($retweetedStatusEntities['hashtags']))
+		{
+			foreach($retweetedStatusEntities['hashtags'] as $hashtags)
+			{
+				$outputString = "{$outputString}" . "{$hashtags['text']}" . ";";
+			}
+			unset($hashtags);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		if(is_array($retweetedStatusEntities['media']))
+		{
+			foreach($retweetedStatusEntities['media'] as $media)
+			{
+				$outputString = "{$outputString}" . "{$media['id_str']}" . ";";
+			}
+			unset($media);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		if(is_array($retweetedStatusEntities['symbols']))
+		{
+			foreach($retweetedStatusEntities['symbols'] as $symbols)
+			{
+				$outputString = "{$outputString}" . "{$symbols['text']}" . ";";
+			}
+			unset($symbols);
+			$outputString = rtrim($outputString, ';');
+		}
+		$outputString = "{$outputString}" . ",";
+		
+		$outputString = "{$outputString}" . "{$retweetedStatus['favorite_count']}" . "," . "{$retweetedStatus['in_reply_to_screen_name']}" . "," . "{$retweetedStatus['in_reply_to_status_id_str']}" . "," . "{$retweetedStatus['in_reply_to_user_id_string']}" . "," . "{$retweetedStatusPlace['id']}" . "," . "{$retweetedStatusPlace['place_type']}" . "," . "{$retweetedtatusPlace['full_name']}" . "," . "{$retweetedStatusPlace['country']}" . "," . "{$retweetedStatus['retweet_count']}". "," . "{$retweetedStatusQuotedStatus['id_str']}" . "," . "{$retweetedStatusQuotedStatus['text']}" . "," . "{$retweetedStatusQuotedStatus['favorite_count']}" . "," . "{$retweetedStatusQuotedStatus['retweet_count']}" . "," . "{$retweetedStatus['source']}" . "," . "{$retweetedStatus['text']}" . "," . "{$retweetedStatusUser['id_str']}" . "," . "{$retweetedStatusUser['name']}" . "," . "{$retweetedStatusUser['screen_name']}" . "," . "{$retweetedStatusUser['location']}" . "," . "{$retweetedStatusUser['created_at']}" . "," . "{$retweetedStatusUser['statuses_count']}" . "," . "{$retweetedStatusUser['followers_count']}" . "," . "{$retweetedStatusUser['friends_count']}" . "," . "{$retweetedStatusUser['listed_count']}" . "," . "{$retweetedStatusUser['contributors_enabled']}" . "," . "{$retweetedStatusUser['geo_enabled']}" . "," . "{$retweetedStatusUser['protected']}" . "," . "{$retweetedStatusUser['verified']}" . "," . "{$retweetedStatusUser['default_profile']}" . "," . "{$retweetedStatusUser['default_profile_image']}" . "," . "{$retweetedStatusUser['withheld_in_countries']}" . "," . "{$retweetedStatusUser['withheld_scope']}" . ",";		
 		$outputString = "{$outputString}" . "{$data['source']}" . "," . "{$data['text']}" . "," . "{$data['truncated']}" . "," . "{$user['id_str']}" . "," . "{$user['name']}" . "," . "{$user['screen_name']}" . "," . "{$user['location']}" . "," . "{$user['created_at']}" . "," . "{$user['statuses_count']}" . "," . "{$user['followers_count']}" . "," . "{$user['friends_count']}" . "," . "{$user['listed_count']}" . "," . "{$user['contributors_enabled']}" . "," . "{$user['geo_enabled']}" . "," . "{$user['protected']}" . "," . "{$user['verified']}" . "," . "{$user['default_profile']}" . "," . "{$user['default_profile_image']}" . "," . "{$user['withheld_in_countries']}" . "," . "{$user['withheld_scope']}" . "," . "{$data['withheld_copyright']}" . "," . "{$data['withheld_in_countries']}" . "," . "{$data['withheld_scope']}";
 		// END FEATURE PRINTING
 		
@@ -305,9 +384,9 @@ $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 $dataHeaders = "contributors,coordinates,created_at,";
 $dataHeaders = "{$dataHeaders}" . "urls,user_mentions_id_str,user_mentions_name,user_mentions_screenname,hashtags,media,symbols,";
 $dataHeaders = "{$dataHeaders}" . "favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place_id,place_type,place_name,place_country,possibly_sensitive,";
-$dataHeaders = "{$dataHeaders}" . "quoted_status_id_str,quoted_status_coordinates,quoted_status_creation_date,quoted_status_urls,quoted_status_user_mentions_id_str,quoted_status_user_mentions_name,quoted_status_user_mentions_screenname,quoted_status_hashtags,quoted_status_media,quoted_status_symbols,quoted_status_favorite_count,quoted_status_in_reply_to_screen_name,quoted_status_in_reply_to_status_id_str,quoted_status_in_reply_to_user_id_str,quoted_status_place_id,quoted_status_place_type,quoted_status_place_name,quoted_status_place_country,quoted_status_retweet_count,quoted_status_retweet_status_id_str,quoted_status_source,quoted_status_text,quoted_status_user_id_str,quoted_status_user_name,quoted_status_user_screenname,quoted_status_user_location,quoted_status_user_creation_date,quoted_status_user_statuses_count,quoted_status_user_followers_count,quoted_status_user_following_count,quoted_status_user_listed_count,quoted_status_user_contributors_enabled,quoted_status_user_geo_enabled,quoted_status_protected_user,quoted_status_verified_user,quoted_status_default_user_profile,quoted_status_default_user_profile_image,quoted_status_user_withheld_in_countries,quoted_status_user_withheld_scope,";
+$dataHeaders = "{$dataHeaders}" . "quoted_status_id_str,quoted_status_coordinates,quoted_status_creation_date,quoted_status_urls,quoted_status_user_mentions_id_str,quoted_status_user_mentions_name,quoted_status_user_mentions_screenname,quoted_status_hashtags,quoted_status_media,quoted_status_symbols,quoted_status_favorite_count,quoted_status_in_reply_to_screen_name,quoted_status_in_reply_to_status_id_str,quoted_status_in_reply_to_user_id_str,quoted_status_place_id,quoted_status_place_type,quoted_status_place_name,quoted_status_place_country,quoted_status_retweet_count,quoted_status_retweet_status_id_str,quted_status_retweet_text,quoted_status_retweet_favorite_count,quoted_status_retweet_retweet_count,quoted_status_source,quoted_status_text,quoted_status_user_id_str,quoted_status_user_name,quoted_status_user_screenname,quoted_status_user_location,quoted_status_user_creation_date,quoted_status_user_statuses_count,quoted_status_user_followers_count,quoted_status_user_following_count,quoted_status_user_listed_count,quoted_status_user_contributors_enabled,quoted_status_user_geo_enabled,quoted_status_protected_user,quoted_status_verified_user,quoted_status_default_user_profile,quoted_status_default_user_profile_image,quoted_status_user_withheld_in_countries,quoted_status_user_withheld_scope,";
 $dataHeaders = "{$dataHeaders}" . "scopes,retweet_count,";
-$dataHeaders = "{$dataHeaders}" . "retweeted_status_id_str,retweeted_status_coordinates,retweeted_status_creation_date,retweeted_status_urls,retweeted_status_user_mentions_id_str,retweeted_status_user_mentions_name,retweeted_status_user_mentions_screenname,retweeted_status_hashtags,retweeted_status_media,retweeted_status_symbols,retweeted_status_favorite_count,retweeted_status_in_reply_to_screen_name,retweeted_status_in_reply_to_status_id_str,retweeted_status_in_reply_to_user_id_str,retweeted_status_place_id,retweeted_status_place_type,retweeted_status_place_name,retweeted_status_place_country,retweeted_status_retweet_count,retweeted_status_quoted_status_id_str,retweeted_status_source,retweeted_status_text,retweeted_status_user_id_str,retweeted_status_user_name,retweeted_status_user_screenname,retweeted_status_user_location,retweeted_status_user_creation_date,retweeted_status_user_statuses_count,retweeted_status_user_followers_count,retweeted_status_user_following_count,retweeted_status_user_listed_count,retweeted_status_user_contributors_enabled,retweeted_status_user_geo_enabled,retweeted_status_protected_user,retweeted_status_verified_user,retweeted_status_default_user_profile,retweeted_status_default_user_profile_image,retweeted_status_user_withheld_in_countries,retweeted_status_user_withheld_scope,";
+$dataHeaders = "{$dataHeaders}" . "retweeted_status_id_str,retweeted_status_coordinates,retweeted_status_creation_date,retweeted_status_urls,retweeted_status_user_mentions_id_str,retweeted_status_user_mentions_name,retweeted_status_user_mentions_screenname,retweeted_status_hashtags,retweeted_status_media,retweeted_status_symbols,retweeted_status_favorite_count,retweeted_status_in_reply_to_screen_name,retweeted_status_in_reply_to_status_id_str,retweeted_status_in_reply_to_user_id_str,retweeted_status_place_id,retweeted_status_place_type,retweeted_status_place_name,retweeted_status_place_country,retweeted_status_retweet_count,retweeted_status_quoted_status_id_str,retweeted_status_quoted_status_text,retweeted_status_quoted_status_favorite_count,retweeted_status_quoted_status_retweet_count,retweeted_status_source,retweeted_status_text,retweeted_status_user_id_str,retweeted_status_user_name,retweeted_status_user_screenname,retweeted_status_user_location,retweeted_status_user_creation_date,retweeted_status_user_statuses_count,retweeted_status_user_followers_count,retweeted_status_user_following_count,retweeted_status_user_listed_count,retweeted_status_user_contributors_enabled,retweeted_status_user_geo_enabled,retweeted_status_protected_user,retweeted_status_verified_user,retweeted_status_default_user_profile,retweeted_status_default_user_profile_image,retweeted_status_user_withheld_in_countries,retweeted_status_user_withheld_scope,";
 $dataHeaders = "{$dataHeaders}" . "source,text,truncated,";
 $dataHeaders = "{$dataHeaders}" . "user_id_str,user_name,user_screenname,user_location,user_creation_date,user_statuses_count,user_followers_count,user_following_count,user_listed_count,user_contributors_enabled,user_geo_enabled,protected_user,verified_user,default_user_profile,default_user_profile_image,user_withheld_in_countries,user_withheld_scope,";
 $dataHeaders = "{$dataHeaders}" . "tweet_withheld_copyright,tweet_withheld_in_countries,tweet_withheld_scope\n";
