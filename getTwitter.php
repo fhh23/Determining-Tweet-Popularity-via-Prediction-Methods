@@ -58,12 +58,20 @@ function my_streaming_callback($data, $length, $metrics)
 	$data = json_decode($data, true); 
 	if(!is_null($data['text'])) // Only prints the tweet information if $data has valid contents
 	{
+		$data['text'] = str_replace(PHP_EOL, '', $data['text']);
+		$data['text'] = str_replace('\n', '', $data['text']);
+		
+		$quotedStatus = $data['quoted_status'];
+		$quotedStatus['text'] = str_replace(PHP_EOL, '', $quotedStatus['text']);
+		$quotedStatus['text'] = str_replace('\n', '', $quotedStatus['text']);
+		$retweetedStatus = $data['retweeted_status'];
+		$retweetedStatus['text'] = str_replace(PHP_EOL, '', $retweetedStatus['text']);
+		$retweetedStatus['text'] = str_replace('\n', '', $retweetedStatus['text']);
+		
 		// BEGIN DEBUG: create a data dump so that the appropriate way to expand all fields can be determined
 		// and necessary extra information can be found
 		print_r($data); // Call to the getTwitter.php function should include "> [ data_dump_filename ]" at the end
 		// END DEBUG
-		
-		$data['text'] = str_replace(PHP_EOL, '', $data['text']); 
 		
 		// Save any fields that contain an array in their own variable
 		
@@ -72,8 +80,6 @@ function my_streaming_callback($data, $length, $metrics)
 		$entities = $data['entities'];
 		$place = $data['place'];
 		$user = $data['user'];
-		$quotedStatus = $data['quoted_status'];
-		$retweetedStatus = $data['retweeted_status'];
 		
 		// Quoted status fields
 		$quotedStatusCoordinates = $quotedStatus['coordinates'];
@@ -111,7 +117,7 @@ function my_streaming_callback($data, $length, $metrics)
 		$retweetedStatusPlace['full_name'] = str_replace(',', '', $retweetedStatusPlace['full_name']);
 		
 		// BEGIN FEATURE PRINTING
-		$outputString = "{$data['contributors']}" . "," . "{$coordinates['coordinates']}" . "," . "{$data['created_at']}" . ",";
+		$outputString = "{$coordinates['coordinates']}" . "," . "{$data['created_at']}" . ",";
 		
 		// Entities Array printing
 		if(is_array($entities['urls']))
@@ -139,16 +145,6 @@ function my_streaming_callback($data, $length, $metrics)
 			foreach($entities['user_mentions'] as $userMentions)
 			{
 				$outputString = "{$outputString}" . "{$userMentions['name']}" . ";";
-			}
-			unset($userMentions);
-			$outputString = rtrim($outputString, ';');
-		}
-		$outputString = "{$outputString}" . ",";
-		if(is_array($entities['user_mentions']))
-		{
-			foreach($entities['user_mentions'] as $userMentions)
-			{
-				$outputString = "{$outputString}" . "{$userMentions['screen_name']}" . ";";
 			}
 			unset($userMentions);
 			$outputString = rtrim($outputString, ';');
@@ -381,8 +377,8 @@ $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 // print_r($outputFile);
 
 // Print CSV file headers
-$dataHeaders = "contributors,coordinates,created_at,";
-$dataHeaders = "{$dataHeaders}" . "urls,user_mentions_id_str,user_mentions_name,user_mentions_screenname,hashtags,media,symbols,";
+$dataHeaders = "coordinates,created_at,";
+$dataHeaders = "{$dataHeaders}" . "urls,user_mentions_id_str,user_mentions_names,hashtags,media,symbols,";
 $dataHeaders = "{$dataHeaders}" . "favorite_count,filter_level,id_str,in_reply_to_screen_name,in_reply_to_status_id_str,in_reply_to_user_id_str,place_id,place_type,place_name,place_country,possibly_sensitive,";
 $dataHeaders = "{$dataHeaders}" . "quoted_status_id_str,quoted_status_coordinates,quoted_status_creation_date,quoted_status_urls,quoted_status_user_mentions_id_str,quoted_status_user_mentions_name,quoted_status_user_mentions_screenname,quoted_status_hashtags,quoted_status_media,quoted_status_symbols,quoted_status_favorite_count,quoted_status_in_reply_to_screen_name,quoted_status_in_reply_to_status_id_str,quoted_status_in_reply_to_user_id_str,quoted_status_place_id,quoted_status_place_type,quoted_status_place_name,quoted_status_place_country,quoted_status_retweet_count,quoted_status_retweet_status_id_str,quted_status_retweet_text,quoted_status_retweet_favorite_count,quoted_status_retweet_retweet_count,quoted_status_source,quoted_status_text,quoted_status_user_id_str,quoted_status_user_name,quoted_status_user_screenname,quoted_status_user_location,quoted_status_user_creation_date,quoted_status_user_statuses_count,quoted_status_user_followers_count,quoted_status_user_following_count,quoted_status_user_listed_count,quoted_status_user_contributors_enabled,quoted_status_user_geo_enabled,quoted_status_protected_user,quoted_status_verified_user,quoted_status_default_user_profile,quoted_status_default_user_profile_image,quoted_status_user_withheld_in_countries,quoted_status_user_withheld_scope,";
 $dataHeaders = "{$dataHeaders}" . "scopes,retweet_count,";
