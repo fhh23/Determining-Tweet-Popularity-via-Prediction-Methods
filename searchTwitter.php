@@ -8,13 +8,9 @@ error_reporting(E_ALL ^ E_NOTICE);
 require 'tmhOAuth.php';
 require 'tmhUtilities.php';
 
-// ------------------------------------------
-// Parameter array
-// ------------------------------------------
 
-$params = array();
 // IDs to search (found from data streaming)
-$params['id'] = '667155188076138496,667155188109701120,667155187967123456,667155188025679872,667155188235509760,667155188273324035,667155188046798848,667155188243918849,667155188050993152,667155188050956289,667155188327710721,667155188180996096,667155188965367808,667155188482895872,667155188856303616,667155188378128384,667155189011378177,667155188835360768,667155188113784832,667155188419969024,667155189070082048,667155189087002624,667155189078470656,667155188814372864,667155188981981188,667155188550094848,667155188919107584,667155188877275136,667155187937624064,667155188810014723,667155188940218368,667155189019754496,667155189170872320,667155192354336768,667155192224288770,667155192283025408,667155192299712512,667155192467603456,667155192413093888,667155192354381824,667155191586799616,667155192261967872,667155191238553600,667155192123539456,667155192110907392,667155192152915969,667155192400519173,667155192173981696,667155192324993024,667155192287137792,667155192236797952,667155192283013121,667155192211619840,667155192249479168,667155191792185344,667155192220131329,667155192366899200,667155192370982912,667155192312233984,667155192207552512,667155192308178944,667155192069124096,667155192496971776,667155192387919872,667155192547295233,667155192211705856,667155196636758016,667155196611571716,667155196452171776,667155196351520768,667155196355682305,667155196250836992,667155196540252160,667155196582072323,667155196544335872,667155196720619521,667155196481376256,667155196548685826,667155196611420164,667155196422688770,667155196158615552,667155196150026240,667155196225564673,667155196519297024,667155196439601152,667155196708069377,667155196527538176,667155196489809920,667155196330426368,667155196473188352,667155196728975360,667155195667742720,667155196569612288,667155196443783168,667155196741488640,667155195709685761,667155196347203584,667155196754173954,667155196628344833,667155200747167744';
+$params['id'] = '667163276611084293,667163276392964098,667163276476850176,667163276543832064,667163275667382273,667163276023832576,667163276862730240,667163276015341568,667163276288110592,667163276422201344,667163276367822848,667163276078264320,667163276241977344,667163276296527872,667163276678029312,667163276443258884,667163276690722820,667163276317298688,667163276032118784,667163276766244869,667163276892065794,667163276904636417,667163276514430977,667163276732530688,667163276971745282,667163276002787329,667163276006985728,667163278968246272,667163278829879296,667163278955663361,667163278477537281,667163278569660417,667163277944754180,667163278980874241,667163278808846336,667163278808891396,667163278632599552,667163278808735745,667163278985011200,667163279006003200,667163278775336961,667163278930542593,667163279035392000,667163278901174272,667163279010234368,667163278909444096,667163278833938432,667163279106686976,667163278712446976,667163278439682048,667163278854918144,667163278972465152,667163278930526210,667163279119286272,667163282747228160,667163282910928896,667163281749069824,667163282466193408,667163282818646016,667163282738843650,667163282487119872,667163282994675713,667163283208712192,667163283204493312,667163282302566400,667163283254861825,667163283128913920,667163283019821056,667163282990469120,667163282881380352,667163283053383680,667163282742992896,667163283313528833,667163282717863936,667163283120525312,667163282747232256,667163282009145346,667163287402991616,667163287407230976,667163287117762560,667163287004516353,667163286568222720,667163287247802368,667163287063171072,667163286610321408,667163287214292992,667163287201693697,667163287377813504,667163287402975234,667163287398797312,667163287151243264,667163287147139073,667163287201542144,667163287285444608,667163287163789312,667163287356747777,667163287486930945,667163286228459520,667163287667253248,667163287491072000';
 
 // ------------------------------------------
 // Get the authentication information
@@ -36,9 +32,17 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // Search for the specified tweets
 // ------------------------------------------
 
+/*
+ * Expects as input a file of format: 
+ * data_collection_output_date('Y-m-d-hisT').csv
+ * DO NOT MESS WITH THIS FORMAT!
+ */
+$inputFile = $argv[1];
+$filenameParts = explode("_", $inputFile);
+
 // Create the file to which the data will be written
 // TODO: edit the suffix to match the input file of ID strings to search
-$outputFile = "search_API_output_" . date('Y-m-d-hisT') . ".csv";
+$outputFile = "search_API_output_" . "{$filenameParts[3]}";
 
 // Print the CSV file headers
 $dataHeaders = "id_str,created_at,text,new_retweet_count,new_favorite_count\n";
@@ -48,45 +52,57 @@ if (file_put_contents($outputFile, $dataHeaders) === FALSE)
 	// FALSE indicates that an error occurred during the fwrite operation
 }
 
-$url = "https://api.twitter.com/1.1/statuses/lookup.json";
-$tmhOAuth->request('GET', $url, $params);
-
-if ($tmhOAuth->response['code'] == 200) 
+$params = array();
+$searchStringFile = fopen($inputFile, "r") or die("Unable to open the file of ID strings!");
+while(!feof($searchStringFile))
 {
-	$data = json_decode($tmhOAuth->response['response'], true);
-	// print_r($data);
-    foreach ($data as $tweet) 
+	$fileLine = fgets($searchStringFile);
+	if ((strcmp($fileLine, PHP_EOL) != 0) & (strcmp($fileLine, "\n") != 0) & (strcmp($fileLine, "\r") != 0))
 	{
-		// Attempts to replace all newline characters in the tweets with an empty string
-		$newlineChars = array( PHP_EOL, '\n', '\r' );
-		// $data['text'] = str_replace(PHP_EOL, '', $data['text']);
-		$tweet['text'] = str_replace($newlineChars, '', $tweet['text']);
+		$params['id'] = "{$fileLine}";
 		
-		// Substitude the HTML comma code for any comma in text
-		$tweet['text'] = str_replace(',', '&#44;', $tweet['text']); 
-		
-		$outputString = "{$tweet['id_str']}" . "," . "{$tweet['created_at']}" . "," . "{$tweet['text']}" . ",";
-		$outputString = "{$outputString}" . "{$tweet['retweet_count']}" . ",";
-		$outputString = "{$outputString}" . "{$tweet['favorite_count']}" . ",";
-		
-		if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
+		$url = "https://api.twitter.com/1.1/statuses/lookup.json";
+		$tmhOAuth->request('GET', $url, $params);
+
+		if ($tmhOAuth->response['code'] == 200) 
 		{
-			// FALSE indicates that an error occurred during the fwrite operation
-		}
+			$data = json_decode($tmhOAuth->response['response'], true);
+			// print_r($data);
+    		foreach ($data as $tweet) 
+			{
+				// Attempts to replace all newline characters in the tweets with an empty string
+				$newlineChars = array( PHP_EOL, '\n', '\r' );
+				// $data['text'] = str_replace(PHP_EOL, '', $data['text']);
+				$tweet['text'] = str_replace($newlineChars, '', $tweet['text']);
+				
+				// Substitude the HTML comma code for any comma in text
+				$tweet['text'] = str_replace(',', '&#44;', $tweet['text']); 
 		
-		// End the data record
-		if (file_put_contents($outputFile, "\n", FILE_APPEND) === FALSE)
-		{
-			// FALSE indicates that an error occurred during the fwrite operation
-		}
-    }
+				$outputString = "{$tweet['id_str']}" . "," . "{$tweet['created_at']}" . "," . "{$tweet['text']}" . ",";
+				$outputString = "{$outputString}" . "{$tweet['retweet_count']}" . ",";
+				$outputString = "{$outputString}" . "{$tweet['favorite_count']}" . ",";
+		
+				if (file_put_contents($outputFile, $outputString, FILE_APPEND) === FALSE)
+				{
+					// FALSE indicates that an error occurred during the fwrite operation
+				}
+		
+				// End the data record
+				if (file_put_contents($outputFile, "\n", FILE_APPEND) === FALSE)
+				{
+					// FALSE indicates that an error occurred during the fwrite operation
+				}
+    		}
 	
-} 
-else 
-{
-	$data = htmlentities($tmhOAuth->response['response']);
-	echo 'There was an error.' . PHP_EOL;
-	var_dump($tmhOAuth);
+		} 
+		else 
+		{
+			$data = htmlentities($tmhOAuth->response['response']);
+			echo 'There was an error.' . PHP_EOL;
+			var_dump($tmhOAuth);
+		}
+	}
 }
+fclose($searchStringFile);
 
 ?>
