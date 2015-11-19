@@ -125,6 +125,7 @@ function my_streaming_callback($data, $length, $metrics)
 		
 		/* BEGIN FEATURE PRINTING */
 		$outputString = "{$data['id_str']}" . "," . "{$data['created_at']}" . "," . "{$data['text']}" . ",";
+		$outputString = "{$outputString}" . "{$data['retweet_count']}" . "," . "{$data['favorite_count']}" . ",";
 		
 		// Entities Array printing
 		$urlAndMediaCount = 0;
@@ -350,7 +351,7 @@ $idStrCount = 0;
 $idStrString = '';
 
 // Print CSV file headers
-$dataHeaders = "id_str,created_at,text,";
+$dataHeaders = "id_str,created_at,text,retweet_count,favorite_count";
 $dataHeaders = "{$dataHeaders}" . "url_and_media_count,user_mentions_count,uer_mentions_names,hastags,hashtag_count,";
 $dataHeaders = "{$dataHeaders}" . "quoted_status,quoted_status_id_str,retweeted_status,retweeted_status_id_str,";
 $dataHeaders = "{$dataHeaders}" . "binary_in_reply_to_user_id,in_reply_to_user_id,";
