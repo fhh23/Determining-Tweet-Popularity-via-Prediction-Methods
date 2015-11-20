@@ -351,8 +351,8 @@ $idStrCount = 0;
 $idStrString = '';
 
 // Print CSV file headers
-$dataHeaders = "id_str,created_at,text,retweet_count,favorite_count";
-$dataHeaders = "{$dataHeaders}" . "url_and_media_count,user_mentions_count,uer_mentions_names,hastags,hashtag_count,";
+$dataHeaders = "id_str,created_at,text,retweet_count,favorite_count,";
+$dataHeaders = "{$dataHeaders}" . "url_and_media_count,user_mentions_count,uer_mentions_names,hashtags,hashtag_count,";
 $dataHeaders = "{$dataHeaders}" . "quoted_status,quoted_status_id_str,retweeted_status,retweeted_status_id_str,";
 $dataHeaders = "{$dataHeaders}" . "binary_in_reply_to_user_id,in_reply_to_user_id,";
 $dataHeaders = "{$dataHeaders}" . "binary_in_reply_to_screen_name,in_reply_to_screen_name,";
