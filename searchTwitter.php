@@ -38,7 +38,9 @@ $filenameParts = explode("_", $inputFile);
 
 // Create the file to which the data will be written
 // TODO: edit the suffix to match the input file of ID strings to search
-$outputFile = "search_API_output_" . "{$filenameParts[3]}";
+$outputFile = "search_API_output_" . "{$filenameParts[2]}";
+$outputFile = substr($outputFile, 0, -4);
+$outputFile = "{$outputFile}" . ".csv";
 
 // Print the CSV file headers
 $dataHeaders = "id_str,created_at,text,new_retweet_count,new_favorite_count\n";
