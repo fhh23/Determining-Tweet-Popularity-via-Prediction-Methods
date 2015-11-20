@@ -66,7 +66,10 @@ function my_streaming_callback($data, $length, $metrics)
 	// (and converts the output into an associative array)
 	$data = json_decode($data, true); 
 	// Only prints the tweet information if $data has valid contents
-	if(!is_null($data['text']))
+	// and the tweet is not already a retweet
+	$retweetedStatus = $data['retweeted_status'];
+	$user = $data['user'];
+	if((!is_null($data['text'])) & (strcmp($retweetedStatus['id_str'], '') == 0) & ($user['followers_count'] > 500))
 	{
 		// Attempts to replace all newline characters in the tweets with an empty string
 		$newlineChars = array( PHP_EOL, '\n', '\r' );
@@ -83,8 +86,6 @@ function my_streaming_callback($data, $length, $metrics)
 		// easier parsing
 		$entities = $data['entities'];
 		$place = $data['place'];
-		$user = $data['user'];
-		$retweetedStatus = $data['retweeted_status'];
 		
 		/*
 		* Comma pre-processing: all commas needed to be removed 
@@ -199,15 +200,6 @@ function my_streaming_callback($data, $length, $metrics)
 			$outputString = "{$outputString}" . "1" . ",";
 		}
 		$outputString = "{$outputString}" . "{$data['quoted_status_id_str']}" . ",";
-		if (strcmp($retweetedStatus['id_str'], '') == 0)
-		{
-			$outputString = "{$outputString}" . "0" . ",";
-		}
-		else
-		{
-			$outputString = "{$outputString}" . "1" . ",";
-		}
-		$outputString = "{$outputString}" . "{$retweetedStatus['id_str']}" . ",";
 		if (strcmp($data['in_reply_to_user_id_str'], '') == 0)
 		{
 			$outputString = "{$outputString}" . "0" . ",";
@@ -353,7 +345,7 @@ $idStrString = '';
 // Print CSV file headers
 $dataHeaders = "id_str,created_at,text,retweet_count,favorite_count,";
 $dataHeaders = "{$dataHeaders}" . "url_and_media_count,user_mentions_count,uer_mentions_names,hashtags,hashtag_count,";
-$dataHeaders = "{$dataHeaders}" . "quoted_status,quoted_status_id_str,retweeted_status,retweeted_status_id_str,";
+$dataHeaders = "{$dataHeaders}" . "quoted_status,quoted_status_id_str,";
 $dataHeaders = "{$dataHeaders}" . "binary_in_reply_to_user_id,in_reply_to_user_id,";
 $dataHeaders = "{$dataHeaders}" . "binary_in_reply_to_screen_name,in_reply_to_screen_name,";
 $dataHeaders = "{$dataHeaders}" . "binary_in_reply_to_status_id,in_reply_to_status_id,";
