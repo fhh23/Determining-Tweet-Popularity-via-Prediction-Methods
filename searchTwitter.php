@@ -119,6 +119,25 @@ if (strcmp($filenameParts[1], 'idStrings') == 0)
 elseif (strcmp($filenameParts[1], 'input') == 0)
 {
 	// Case: Input file is a list of of search_idStrings files to be processed at 16 minute intervals
+	$searchFileListFile = fopen($inputFile, "r") or die("Unable to the open the file containing the list of search files!");
+	while(!feof($searchFileListFile))
+	{
+		// TODO: check that this variable does not include the newline character
+		$filename = fgets($searchFileListFile);
+		$filenameParts = explode("_", $filename);
+		
+		// Create the file to which the data will be written
+		// TODO: edit the suffix to match the input file of ID strings to search
+		$outputFile = "search_API_output_" . "{$filenameParts[2]}";
+		$outputFile = substr($outputFile, 0, -4);
+		$outputFile = "{$outputFile}" . ".csv";
+
+		process_searchQuery_file($filename, $outputFile);
+		
+		// Pause the program for 16 minutes to abide by the Twitter API Rate Limit
+		sleep(960);
+	}
+	fclose($inputFile);
 }
 else
 {
