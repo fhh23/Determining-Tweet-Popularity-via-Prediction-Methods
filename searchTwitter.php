@@ -8,6 +8,8 @@ error_reporting(E_ALL ^ E_NOTICE);
 require 'tmhOAuth.php';
 require 'tmhUtilities.php';
 
+
+
 // ------------------------------------------
 // Get the authentication information
 // ------------------------------------------
@@ -29,12 +31,28 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // ------------------------------------------
 
 /*
- * Expects as input a file of format: 
- * data_collection_output_date('Y-m-d-hisT').csv
+ * Expects as input one of two filename formats: 
+ * (1) search_idStrings_date('Y-m-d-hisT').txt
+ * (2) search_input_date('Y-m-d-hisT').txt
  * DO NOT MESS WITH THIS FORMAT!
  */
 $inputFile = $argv[1];
 $filenameParts = explode("_", $inputFile);
+
+// Determine which filename format was provided
+if (strcmp($filenameParts[1], 'idStrings') == 0)
+{
+	// Case: Input file is a set of at most 180 search queries, each of which can contain up to 100 tweet ID strings
+}
+elseif (strcmp($filenameParts[1], 'input') == 0)
+{
+	// Case: Input file is a list of of search_idStrings files to be processed at 16 minute intervals
+}
+else
+{
+	echo "INCORRECT INPUT FILE FORMAT!";
+	// TODO: quit the program with an error message to the console
+}
 
 // Create the file to which the data will be written
 // TODO: edit the suffix to match the input file of ID strings to search

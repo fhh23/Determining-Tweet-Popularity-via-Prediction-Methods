@@ -414,9 +414,10 @@ $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
 
 // TODO: check when this is called (after ALL streaming requests?)
 // Sort the hashtag frequency analysis array for output purposes
+echo "Post streaming session processing or processing after each tweet?\n";
 if (arsort($hashtagFrequencies) === FALSE)
 {
-	// SFALSE indicates that the arsort function was unsuccessful
+	// FALSE indicates that the arsort function was unsuccessful
 }
 
 ?>
