@@ -61,8 +61,7 @@ function my_streaming_callback($data, $length, $metrics)
 
 	// Use the filename created before the streaming request post
 	global $outputFile;
-	// Use the previously created global variable 
-	// to track hashtag values for frequency analysis
+	// Use the previously created global variable to track hashtag values for frequency analysis
 	global $hashtagFrequencies;
 
 	// Converts the JSON string to a PHP variable 
@@ -83,9 +82,16 @@ function my_streaming_callback($data, $length, $metrics)
 			// Pause the streaming for 16 minutes and then create a new output file before continuing
 			sleep(960);
 			$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
+			// Print the CSV file headers
+			global $dataHeaders;
+			// Caution: overwrites any current data in the file
+			if (file_put_contents($outputFile, $dataHeaders) === FALSE)
+			{
+				// FALSE indicates that an error occurred during the fwrite operation
+			}
 			$searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
 			// Log the new filename for the list of ID strings to pass to the Search API
-			if (file_put_contents($outputFilesListFile, $searchAPIFile, FILE_APPEND) === FALSE)
+			if (file_put_contents($outputFilesListFile, "{$searchAPIFile}" . "\n", FILE_APPEND) === FALSE)
 			{
 				// FALSE indicates that an error occurred during the fwrite operation
 			}
@@ -99,7 +105,7 @@ function my_streaming_callback($data, $length, $metrics)
 		global $searchAPIFile; global $idStrCount; global $idStrString;
 		if ($idStrCount > 98)
 		{
-			echo "Search API Tweet Limit Reached. Printing variable to file!";
+			// echo "Search API Tweet Limit Reached. Printing variable to file!";
 			$idStrString = "{$idStrString}" . "," ."{$data['id_str']}" . "\n\n";
 			if (file_put_contents($searchAPIFile, $idStrString, FILE_APPEND) === FALSE)
 			{
@@ -373,8 +379,8 @@ $searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
 // print_r($searchAPIFile);
 // Create a text file that will keep track of all the file names used in the
 // streaming session to pass to the searchTwitter PHP program
-$outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt\n"; // time at which the streaming begins
-if (file_put_contents($outputFilesListFile, $searchAPIFile, FILE_APPEND) === FALSE)
+$outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt"; // time at which the streaming session begins
+if (file_put_contents($outputFilesListFile, "{$searchAPIFile}" . "\n", FILE_APPEND) === FALSE)
 {
 	// FALSE indicates that an error occurred during the fwrite operation
 }
