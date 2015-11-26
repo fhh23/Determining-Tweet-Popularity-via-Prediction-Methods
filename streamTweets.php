@@ -61,16 +61,41 @@ function my_streaming_callback($data, $length, $metrics)
 
 	// Use the filename created before the streaming request post
 	global $outputFile;
+	
+	// Use the previously created global variable 
+	// to track hashtag values for frequency analysis
+	global $hashtagFrequencies;
 
 	// Converts the JSON string to a PHP variable 
 	// (and converts the output into an associative array)
 	$data = json_decode($data, true); 
-	// Only prints the tweet information if $data has valid contents
-	// and the tweet is not already a retweet
+	
+	// Only prints the tweet information if $data has valid contents,
+	// the tweet is not already a retweet, and the user has more than 500 followers
 	$retweetedStatus = $data['retweeted_status'];
 	$user = $data['user'];
 	if((!is_null($data['text'])) & (strcmp($retweetedStatus['id_str'], '') == 0) & ($user['followers_count'] > 500))
 	{
+		// Maintain a count of the numbers of tweets in a file
+		global $outputFileDatapointCounter;
+		if ($outputFileDatapointCounter > 178)
+		{
+			$outputFileDatapointCounter = 0;
+			// Pause the streaming for 15 minutes and then create a new output file before continuing
+			sleep(900);
+			$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
+			$searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
+			// Log the new output name
+			if (file_put_contents($outputFilesListFile, $searchAPIFile, FILE_APPEND) === FALSE)
+			{
+				// FALSE indicates that an error occurred during the fwrite operation
+			}
+		}
+		else
+		{
+			$outputFileDatapointCounter = $outputFileDatapointCounter + 1;
+		}
+		
 		// Attempts to replace all newline characters in the tweets with an empty string
 		$newlineChars = array( PHP_EOL, '\n', '\r' );
 		// $data['text'] = str_replace(PHP_EOL, '', $data['text']);
@@ -184,6 +209,16 @@ function my_streaming_callback($data, $length, $metrics)
 			{
 				$outputString = "{$outputString}" . "{$hashtags['text']}" . ";";
 				$hashtagCount = $hashtagCount + 1;
+				
+				// Frequency analysis of hashtags
+				if (array_key_exists($hashtags['text'], $hashtagFrequencies))
+				{
+					$hashtagFrequencies[$hashtags['text']] = $hashtagFrequencies[$hashtags['text']] + 1;
+				}
+				else
+				{
+					$hashtagFrequencies[[$hashtags['text']]] = 1;
+				}
 			}
 			unset($hashtags);
 			$outputString = rtrim($outputString, ';');
@@ -332,11 +367,24 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // Get tweets
 // ------------------------------------------
 
-// Create the file to which the data will be written
+// Create the files to which the data will be written
 $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 // print_r($outputFile);
 $searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
 // print_r($searchAPIFile);
+// Create a text file that will keep track of all the file names used in this streaming
+// for the Search API
+$outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt\n";
+if (file_put_contents($outputFilesListFile, $searchAPIFile, FILE_APPEND) === FALSE)
+{
+	// FALSE indicates that an error occurred during the fwrite operation
+}
+
+
+// Create a variable for the number of tweets currently in the output file data
+$outputFileDatapointCounter = 0;
+// Create a variable for frequency analysis of hashtags used in the stream data
+$hashtagFrequencies = array();
 
 // Create the variables related to building for the Search API
 $idStrCount = 0;
@@ -360,5 +408,12 @@ if (file_put_contents($outputFile, $dataHeaders) === FALSE)
 
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
+
+// TODO: check when this is called
+// Sort the hashtag frequency analysis array for output purposes
+if (arsort($hashtagFrequencies) === FALSE)
+{
+	// Sort was unsuccessful
+}
 
 ?>
