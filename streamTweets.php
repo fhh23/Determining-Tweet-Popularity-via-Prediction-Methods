@@ -28,7 +28,7 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-$time_limit = 1800; // 30 minute data collection
+$time_limit = 7200; // 1 hour data collection
 set_time_limit($time_limit + 30);
 
 // Set the comma separate list of longitude/latitude pairs
@@ -60,7 +60,7 @@ function my_streaming_callback($data, $length, $metrics)
 	}
 
 	// Use the filename created before the streaming request post
-	global $outputFile;
+	global $outputFile; global $searchAPIFile;
 	// Use the previously created global variable to track hashtag values for frequency analysis
 	global $hashtagFrequencies;
 
@@ -75,12 +75,16 @@ function my_streaming_callback($data, $length, $metrics)
 	if((!is_null($data['text'])) & (strcmp($retweetedStatus['id_str'], '') == 0) & ($user['followers_count'] > 500))
 	{
 		// Maintain a count of the numbers of tweets in an output file
-		global $outputFileDatapointCounter;
-		if ($outputFileDatapointCounter > 178)
+		global $outputFileDatapointCounter; global $outputFilesListFile;
+		// if ($outputFileDatapointCounter > 17998) // TODO: change back to this value
+		if ($outputFileDatapointCounter > 500)
 		{
+			echo "18,000 tweets! Pausing for 16 minutes and then starting new file\n";
 			$outputFileDatapointCounter = 0;
 			// Pause the streaming for 16 minutes and then create a new output file before continuing
-			sleep(960);
+			// sleep(960); // TODO: change back to this value
+			sleep(300);
+			echo "Restarting the data collection...\n";
 			$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 			// Print the CSV file headers
 			global $dataHeaders;
@@ -102,10 +106,10 @@ function my_streaming_callback($data, $length, $metrics)
 		}
 		
 		// Add the id_str to the global variable to be passed to the Search API
-		global $searchAPIFile; global $idStrCount; global $idStrString;
+		global $idStrCount; global $idStrString;
 		if ($idStrCount > 98)
 		{
-			// echo "Search API Tweet Limit Reached. Printing variable to file!";
+			echo "Search API Tweet Limit Reached. Printing variable to file!\n";
 			$idStrString = "{$idStrString}" . "," ."{$data['id_str']}" . "\n\n";
 			if (file_put_contents($searchAPIFile, $idStrString, FILE_APPEND) === FALSE)
 			{
@@ -135,7 +139,7 @@ function my_streaming_callback($data, $length, $metrics)
 		// provided for each tweet
 		// Call to the streamTweets.php function should be formatted as
 		// "php streamTwitter.php > [ data_dump_filename ]"
-		print_r($data); 
+		// print_r($data); 
 		
 		// Save any fields Array fields into separate variables for 
 		// easier parsing
@@ -222,7 +226,7 @@ function my_streaming_callback($data, $length, $metrics)
 				}
 				else
 				{
-					$hashtagFrequencies[[$hashtags['text']]] = 1;
+					$hashtagFrequencies[$hashtags['text']] = 1;
 				}
 			}
 			unset($hashtags);
@@ -372,6 +376,11 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // Get tweets
 // ------------------------------------------
 
+// Create the directory name in which all of the output files will be stored
+$outputDir = "streaming_session_" . date('Y-m-d-hisT');
+mkdir($outputDir) or die("Unable to create a directory for output files!\n");
+chdir($outputDir);
+
 // Create the files to which the data will be written
 $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 // print_r($outputFile);
@@ -379,7 +388,7 @@ $searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
 // print_r($searchAPIFile);
 // Create a text file that will keep track of all the file names used in the
 // streaming session to pass to the searchTwitter PHP program
-$outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt"; // time at which the streaming session begins
+$outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt";
 if (file_put_contents($outputFilesListFile, "{$searchAPIFile}" . "\n", FILE_APPEND) === FALSE)
 {
 	// FALSE indicates that an error occurred during the fwrite operation
@@ -412,12 +421,13 @@ if (file_put_contents($outputFile, $dataHeaders) === FALSE)
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
 
-// TODO: check when this is called (after ALL streaming requests?)
+// TODO: use this output to create features (binary presence of popular hashtags)
 // Sort the hashtag frequency analysis array for output purposes
-echo "Post streaming session processing or processing after each tweet?\n";
+echo "Streaming complete. Performing all end of script processing.\n";
 if (arsort($hashtagFrequencies) === FALSE)
 {
 	// FALSE indicates that the arsort function was unsuccessful
 }
+chdir("..");
 
 ?>
