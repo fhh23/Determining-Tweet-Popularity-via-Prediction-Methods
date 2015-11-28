@@ -11,7 +11,7 @@ require 'tmhUtilities.php';
 // ---------------------------------------------------------
 // Define a function for processing a search_idStrings file
 // ---------------------------------------------------------
-function process_searchQuery_file($inputFilename, $outputFilename)
+function process_searchQuery_file($tmhObject, $inputFilename, $outputFilename)
 {
 	// Print the CSV file headers
 	$dataHeaders = "id_str,created_at,text,new_retweet_count,new_favorite_count\n";
@@ -22,20 +22,22 @@ function process_searchQuery_file($inputFilename, $outputFilename)
 	}
 
 	$params = array();
-	$searchStringFile = fopen($inputFilename, "r") or die("Unable to open the file of ID strings!");
+	$searchStringFile = fopen(__DIR__ . "/" . $inputFilename, "r") or die("Unable to open the file of ID strings!\n");
 	while(!feof($searchStringFile))
 	{
 		$fileLine = fgets($searchStringFile);
+		// Ignore the line separations inserted in the file for readability
 		if ((strcmp($fileLine, PHP_EOL) != 0) & (strcmp($fileLine, "\n") != 0) & (strcmp($fileLine, "\r") != 0))
 		{
+			$fileline = substr($fileline, 0, -1); // remove the newline character at the end of the query
 			$params['id'] = "{$fileLine}";
 		
 			$url = "https://api.twitter.com/1.1/statuses/lookup.json";
-			$tmhOAuth->request('GET', $url, $params);
+			$tmhObject->request('GET', $url, $params);
 
-			if ($tmhOAuth->response['code'] == 200) 
+			if ($tmhObject->response['code'] == 200) 
 			{
-				$data = json_decode($tmhOAuth->response['response'], true);
+				$data = json_decode($tmhObject->response['response'], true);
 				// print_r($data);
     			foreach ($data as $tweet) 
 				{
@@ -65,9 +67,9 @@ function process_searchQuery_file($inputFilename, $outputFilename)
 			} 
 			else 
 			{
-				$data = htmlentities($tmhOAuth->response['response']);
+				$data = htmlentities($tmhObject->response['response']);
 				echo 'There was an error.' . PHP_EOL;
-				var_dump($tmhOAuth);
+				var_dump($tmhObject);
 			}
 		}
 	}
@@ -95,49 +97,89 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // ------------------------------------------
 
 /*
- * Expects as input one of two filename formats: 
+ * Expects as input one of three filename formats: 
  * (1) search_idStrings_date('Y-m-d-hisT').txt
- * (2) search_input_date('Y-m-d-hisT').txt
+ * (2) streaming_session_date('Y-m-d-hisT')
+ * (3) streaming_session_date('Y-m-d-hisT')/search_input_date('Y-m-d-hisT').txt
  * DO NOT MESS WITH THIS FORMAT!
  */
 $inputFile = $argv[1];
 $filenameParts = explode("_", $inputFile);
 
 // Determine which filename format was provided
-if (strcmp($filenameParts[1], 'idStrings') == 0)
+if (strcmp($filenameParts[0], 'search') == 0)
 {
 	// Case: Input file is a set of at most 180 search queries, each of which can contain up to 100 tweet ID strings
 	// Create the file to which the data will be written
-	// TODO: edit the suffix to match the input file of ID strings to search
 	$outputFile = "search_API_output_" . "{$filenameParts[2]}";
 	$outputFile = substr($outputFile, 0, -4);
 	$outputFile = "{$outputFile}" . ".csv";
 	
-	// Check how to call another PHP function in the same file
-	process_searchQuery_file($inputFile, $outputFile);
+	process_searchQuery_file($tmhOAuth, $inputFile, $outputFile);
 }
-elseif (strcmp($filenameParts[1], 'input') == 0)
+elseif (strcmp($filenameParts[0], 'streaming') == 0)
 {
 	// Case: Input file is a list of of search_idStrings files to be processed at 16 minute intervals
-	$searchFileListFile = fopen($inputFile, "r") or die("Unable to the open the file containing the list of search files!");
-	while(!feof($searchFileListFile))
+	$pathAndFilename = explode("/", $inputFile);
+	$dir = $pathAndFilename[0];
+	
+	if ($pathAndFilename[1] == "")
 	{
-		// TODO: check that this variable does not include the newline character
-		$filename = fgets($searchFileListFile);
-		$filenameParts = explode("_", $filename);
+		// Sub-case: no filename provided after the directory name
+		// Assume that that the directory contains a filename of format search_input_date('Y-m-d-hisT').txt
+		// with the date matching the name of the directory
+		$searchFileListFilename = $dir . "/" . "search_input_" . "{$filenameParts[2]}";
+		$searchFileListFilename = substr($searchFileListFilename, 0, -1);
+		$searchFileListFilename = "{$searchFileListFilename}" . ".txt";
+		// BEGIN DEBUG
+		echo "Expected filename: " . "{$searchFileListFilename}". "\n";
+		// END DEBUG
+		$searchFileListFile = fopen(__DIR__ . "/" . $searchFileListFilename, "r") or die("Unable to find and open the expected file containing the list of search files!\n");
 		
 		// Create the file to which the data will be written
-		// TODO: edit the suffix to match the input file of ID strings to search
+		$outputFile = "search_API_output_" . "{$filenameParts[2]}";
+		$outputFile = substr($outputFile, 0, -1);
+		$outputFile = "{$outputFile}" . ".csv";
+	}
+	else
+	{
+		// Sub-case: filename provided after the directory name (filename should be of the specified format)
+		$searchFileListFile = fopen(__DIR__ . "/" . $inputFile, "r") or die("Unable to the open the specified file containing the list of search files!\n");
+		
+		// Create the file to which the data will be written
 		$outputFile = "search_API_output_" . "{$filenameParts[2]}";
 		$outputFile = substr($outputFile, 0, -4);
 		$outputFile = "{$outputFile}" . ".csv";
-
-		process_searchQuery_file($filename, $outputFile);
-		
-		// Pause the program for 16 minutes to abide by the Twitter API Rate Limit
-		sleep(960);
 	}
-	fclose($inputFile);
+	
+	$initialRun = 1;
+	while(!feof($searchFileListFile))
+	{		
+		// initialRun variable prevents the pause from occurring before the first search
+		if ($initialRun == 1)
+		{
+			$initialRun = 0;
+		}
+		else
+		{
+			// Pause the program for 16 minutes to abide by the Twitter API Rate Limit
+			echo "Pausing the program for 16 minutes to follow Twitter API Rate Limit...\n";
+			sleep(960);
+			echo "Restarting the program and performing the next search!\n";
+		}
+		
+		$filename = fgets($searchFileListFile);
+		if ((strcmp($filename, PHP_EOL) != 0) & (strcmp($filename, "\n") != 0) & (strcmp($filename, "\r") != 0) & (strcmp($filename, "") != 0))
+		{
+			$filename = substr($filename, 0, -1); // remove the newline character in the filename
+			$filenameParts = explode("_", $filename);
+			// TODO: remove the echo to the console use for debugging purposes
+			echo "Processing file " . "{$filename}" . "...\n";
+
+			process_searchQuery_file($tmhOAuth, $dir . "/" . $filename, $dir . "/" . $outputFile);
+		}
+	}
+	fclose($searchFileListFile);
 }
 else
 {
