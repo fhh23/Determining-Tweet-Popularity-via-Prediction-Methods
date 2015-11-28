@@ -135,21 +135,11 @@ elseif (strcmp($filenameParts[0], 'streaming') == 0)
 		echo "Expected filename: " . "{$searchFileListFilename}". "\n";
 		// END DEBUG
 		$searchFileListFile = fopen(__DIR__ . "/" . $searchFileListFilename, "r") or die("Unable to find and open the expected file containing the list of search files!\n");
-		
-		// Create the file to which the data will be written
-		$outputFile = "search_API_output_" . "{$filenameParts[2]}";
-		$outputFile = substr($outputFile, 0, -1);
-		$outputFile = "{$outputFile}" . ".csv";
 	}
 	else
 	{
 		// Sub-case: filename provided after the directory name (filename should be of the specified format)
 		$searchFileListFile = fopen(__DIR__ . "/" . $inputFile, "r") or die("Unable to the open the specified file containing the list of search files!\n");
-		
-		// Create the file to which the data will be written
-		$outputFile = "search_API_output_" . "{$filenameParts[2]}";
-		$outputFile = substr($outputFile, 0, -4);
-		$outputFile = "{$outputFile}" . ".csv";
 	}
 	
 	$initialRun = 1;
@@ -172,9 +162,14 @@ elseif (strcmp($filenameParts[0], 'streaming') == 0)
 		if ((strcmp($filename, PHP_EOL) != 0) & (strcmp($filename, "\n") != 0) & (strcmp($filename, "\r") != 0) & (strcmp($filename, "") != 0))
 		{
 			$filename = substr($filename, 0, -1); // remove the newline character in the filename
-			$filenameParts = explode("_", $filename);
 			// TODO: remove the echo to the console use for debugging purposes
 			echo "Processing file " . "{$filename}" . "...\n";
+			
+			// Create the file to which the data will be written
+			$filenameParts = explode("_", $filename);
+			$outputFile = "search_API_output_" . "{$filenameParts[2]}";
+			$outputFile = substr($outputFile, 0, -4);
+			$outputFile = "{$outputFile}" . ".csv";
 
 			process_searchQuery_file($tmhOAuth, $dir . "/" . $filename, $dir . "/" . $outputFile);
 		}
