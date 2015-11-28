@@ -28,7 +28,7 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-$time_limit = 7200; // 1 hour data collection
+$time_limit = 7200; // 2 hour data collection
 set_time_limit($time_limit + 30);
 
 // Set the comma separate list of longitude/latitude pairs
@@ -56,6 +56,9 @@ function my_streaming_callback($data, $length, $metrics)
 	global $time_limit;
 	if ( $exec_time > $time_limit )
 	{
+		// BEGIN DEBUG
+		echo "Reached end of time limit!";
+		// END DEBUG
 		return true;
 	}
 
@@ -76,15 +79,15 @@ function my_streaming_callback($data, $length, $metrics)
 	{
 		// Maintain a count of the numbers of tweets in an output file
 		global $outputFileDatapointCounter; global $outputFilesListFile;
-		// if ($outputFileDatapointCounter > 17998) // TODO: change back to this value
-		if ($outputFileDatapointCounter > 500)
+		if ($outputFileDatapointCounter > 17998) 
+		// if ($outputFileDatapointCounter > 500) // Temporary shorter stream for testing purposes 
 		{
-			echo "18,000 tweets! Pausing for 16 minutes and then starting new file\n";
+			echo "18,000 tweets! Pausing for 16 minutes and then starting new file...\n";
 			$outputFileDatapointCounter = 0;
 			// Pause the streaming for 16 minutes and then create a new output file before continuing
-			// sleep(960); // TODO: change back to this value
-			sleep(300);
-			echo "Restarting the data collection...\n";
+			sleep(960);
+			// sleep(300); // Temporary shorter value for testing purposes
+			echo "Restarting the data collection!\n";
 			$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 			// Print the CSV file headers
 			global $dataHeaders;
@@ -383,9 +386,7 @@ chdir($outputDir);
 
 // Create the files to which the data will be written
 $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
-// print_r($outputFile);
 $searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
-// print_r($searchAPIFile);
 // Create a text file that will keep track of all the file names used in the
 // streaming session to pass to the searchTwitter PHP program
 $outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt";
@@ -423,11 +424,15 @@ $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
 
 // TODO: use this output to create features (binary presence of popular hashtags)
 // Sort the hashtag frequency analysis array for output purposes
-echo "Streaming complete. Performing all end of script processing.\n";
+echo "Streaming complete. Performing all end of script processing.\n"; // DEBUG STMT (remove)
 if (arsort($hashtagFrequencies) === FALSE)
 {
 	// FALSE indicates that the arsort function was unsuccessful
 }
+// Temporary: print a list of the 10 most popular hashtags and their frequencies to the console
+print_r(array_slice($hashtagFrequencies, 0, 10, TRUE));
+
+// Change directories back to the calling directory
 chdir("..");
 
 ?>
