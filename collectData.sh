@@ -41,6 +41,7 @@ while [ $SECONDS -lt $end ]; do
 	
 done
 
+echo "Pausing for 6 hours. 6 hour SearchTwitter check to be done afterwards."
 sleep 6h # 6 hours after the streaming
 php searchTwitter.php $directoryName
 
@@ -55,6 +56,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 
+echo "Pausing for 6 hours. 12 hour SearchTwitter check to be done afterwards."
 sleep 6h # 12 hours after the streaming
 php searchTwitter.php $directoryName
 
@@ -69,6 +71,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 
+echo "Pausing for 6 hours. 18 hour SearchTwitter check to be done afterwards."
 sleep 6h # 18 hours after the streaming
 php searchTwitter.php $directoryName
 
@@ -83,6 +86,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 
+echo "Pausing for 6 hours. 24 hour SearchTwitter check to be done afterwards."
 sleep 6h # 24 hours after the streaming
 php searchTwitter.php $directoryName
 
