@@ -42,6 +42,7 @@ while [ $SECONDS -lt $end ]; do
 done
 
 sleep 6h # 6 hours after the streaming
+php searchTwitter.php $directoryName
 
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -55,6 +56,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 done
 
 sleep 6h # 12 hours after the streaming
+php searchTwitter.php $directoryName
 
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -68,6 +70,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 done
 
 sleep 6h # 18 hours after the streaming
+php searchTwitter.php $directoryName
 
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -81,6 +84,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 done
 
 sleep 6h # 24 hours after the streaming
+php searchTwitter.php $directoryName
 
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
