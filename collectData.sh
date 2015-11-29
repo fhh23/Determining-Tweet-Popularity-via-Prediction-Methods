@@ -22,7 +22,7 @@ searchIDStringsNameStoragePrefix=search_input_
 searchIDStringsNameStorage=$searchIDStringsNameStoragePrefix$currentTime".txt"
 # echo $searchIDStringsNameStorage # DEBUG: print the filename
 
-hashtagAnalysisFilename=hashtagFrequencyAnalysis
+hashtagAnalysisFilename=hashtagFrequencyAnalysis.txt
 
 # Run the program until it reaches the time limit
 # (while loop prevents any data collection from beginning after the time limit)

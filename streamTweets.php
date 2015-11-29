@@ -28,7 +28,7 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-$time_limit = 7200; // 2 hour data collection
+$time_limit = 7200; // 2 hour data collection (use as a timeout if the search is taking too long)
 set_time_limit($time_limit + 30);
 
 // Set the comma separate list of longitude/latitude pairs
@@ -79,29 +79,11 @@ function my_streaming_callback($data, $length, $metrics)
 	{
 		// Maintain a count of the numbers of tweets in an output file
 		global $outputFileDatapointCounter; global $outputFilesListFile;
-		if ($outputFileDatapointCounter > 17998) 
-		// if ($outputFileDatapointCounter > 500) // Temporary shorter stream for testing purposes 
+		if ($outputFileDatapointCounter > 17999) 
 		{
 			echo "18,000 tweets! Pausing for 16 minutes and then starting new file...\n";
-			$outputFileDatapointCounter = 0;
-			// Pause the streaming for 16 minutes and then create a new output file before continuing
-			sleep(960);
-			// sleep(300); // Temporary shorter value for testing purposes
-			echo "Restarting the data collection!\n";
-			$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
-			// Print the CSV file headers
-			global $dataHeaders;
-			// Caution: overwrites any current data in the file
-			if (file_put_contents($outputFile, $dataHeaders) === FALSE)
-			{
-				// FALSE indicates that an error occurred during the fwrite operation
-			}
-			$searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
-			// Log the new filename for the list of ID strings to pass to the Search API
-			if (file_put_contents($outputFilesListFile, "{$searchAPIFile}" . "\n", FILE_APPEND) === FALSE)
-			{
-				// FALSE indicates that an error occurred during the fwrite operation
-			}
+			// TODO: Move this code to after writing the tweet to the data file
+			return true; // Exit the streaming program
 		}
 		else
 		{
@@ -112,7 +94,7 @@ function my_streaming_callback($data, $length, $metrics)
 		global $idStrCount; global $idStrString;
 		if ($idStrCount > 98)
 		{
-			echo "Search API Tweet Limit Reached. Printing variable to file!\n";
+			# echo "Search API Tweet Limit Reached. Printing variable to file!\n";
 			$idStrString = "{$idStrString}" . "," ."{$data['id_str']}" . "\n\n";
 			if (file_put_contents($searchAPIFile, $idStrString, FILE_APPEND) === FALSE)
 			{
@@ -379,17 +361,16 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // Get tweets
 // ------------------------------------------
 
-// Create the directory name in which all of the output files will be stored
-$outputDir = "streaming_session_" . date('Y-m-d-hisT');
-mkdir($outputDir) or die("Unable to create a directory for output files!\n");
+// Store the inputs to the program from the collectData shell script
+$outputDir = $argv[1];
+$outputFilesListFile = $argv[2];
+$hashtagAnalysisFile=$argv[3];
 chdir($outputDir);
 
 // Create the files to which the data will be written
 $outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
 $searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
-// Create a text file that will keep track of all the file names used in the
-// streaming session to pass to the searchTwitter PHP program
-$outputFilesListFile = "search_input_" . date('Y-m-d-hisT') . ".txt";
+// Keep track of all the file names used in the streaming session to pass to the searchTwitter PHP program
 if (file_put_contents($outputFilesListFile, "{$searchAPIFile}" . "\n", FILE_APPEND) === FALSE)
 {
 	// FALSE indicates that an error occurred during the fwrite operation
@@ -422,15 +403,18 @@ if (file_put_contents($outputFile, $dataHeaders) === FALSE)
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
 
-// TODO: use this output to create features (binary presence of popular hashtags)
 // Sort the hashtag frequency analysis array for output purposes
 echo "Streaming complete. Performing all end of script processing.\n"; // DEBUG STMT (remove)
 if (arsort($hashtagFrequencies) === FALSE)
 {
 	// FALSE indicates that the arsort function was unsuccessful
 }
-// Temporary: print a list of the 10 most popular hashtags and their frequencies to the console
-print_r(array_slice($hashtagFrequencies, 0, 10, TRUE));
+// Print a list of the 10 most popular hashtags and their frequencies to the specified file
+$hashtagFreqHumanReadable = print_r(array_slice($hashtagFrequencies, 0, 10, TRUE), TRUE);
+if (file_put_contents($hashtagAnalysisFile, "{$$hashtagFreqHumanReadable}" . "\n", FILE_APPEND) === FALSE)
+{
+	// FALSE indicates that an error occurred during the fwrite operation
+}
 
 // Change directories back to the calling directory
 chdir("..");
