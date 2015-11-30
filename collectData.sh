@@ -55,7 +55,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_3hr_"$extension
+	newFilename=$filenameNoExtension"_3hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -72,7 +72,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_6hr_"$extension
+	newFilename=$filenameNoExtension"_6hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -89,7 +89,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_9hr_"$extension
+	newFilename=$filenameNoExtension"_9hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -106,7 +106,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_12hr_"$extension
+	newFilename=$filenameNoExtension"_12hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -123,7 +123,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_15hr_"$extension
+	newFilename=$filenameNoExtension"_15hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -140,7 +140,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_18hr_"$extension
+	newFilename=$filenameNoExtension"_18hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -157,7 +157,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_21hr_"$extension
+	newFilename=$filenameNoExtension"_21hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
@@ -174,7 +174,7 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_24hr_"$extension
+	newFilename=$filenameNoExtension"_24hr"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
