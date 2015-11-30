@@ -129,7 +129,6 @@ elseif (strcmp($filenameParts[0], 'streaming') == 0)
 		// Assume that that the directory contains a filename of format search_input_date('Y-m-d-hisT').txt
 		// with the date matching the name of the directory
 		$searchFileListFilename = $dir . "/" . "search_input_" . "{$filenameParts[2]}";
-		$searchFileListFilename = substr($searchFileListFilename, 0, -1);
 		$searchFileListFilename = "{$searchFileListFilename}" . ".txt";
 		// BEGIN DEBUG
 		echo "Expected filename: " . "{$searchFileListFilename}". "\n";
