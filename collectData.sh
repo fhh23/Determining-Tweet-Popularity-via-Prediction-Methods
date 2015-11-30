@@ -2,9 +2,12 @@
 
 # Authors: Farhan Hormasji and Bonnie Reiff
 # CSE 881 Project, Fall 2015
-# collectData.sh: TODO Description
+# collectData.sh: Performs all automatic and timed interaction with the Twitter APIs.
+#        Runs a 6 hour stream of tweets using common popular words as keywords, which produces
+#        one data file of output per 15,000 tweets. Subsequenty searches for each Tweet
+#        and reports on the new number of retweets and favorites.
 
-end=$((SECONDS+14400)) # 4 hour time limit on the script
+end=$((SECONDS+21600)) # 6 hour time limit on the script
 
 currentTime=$(date "+%Y-%m-%d-%H%M%S")
 currentTime=$currentTime"ETC"
@@ -41,10 +44,28 @@ while [ $SECONDS -lt $end ]; do
 	
 done
 
-echo "Pausing for 6 hours. 6 hour SearchTwitter check to be done afterwards."
-sleep 6h # 6 hours after the streaming
+echo "Pausing for 3 hours. 3 hour SearchTwitter check to be done afterwards."
+sleep 3h # 3 hours after the streaming
 php searchTwitter.php $directoryName
 
+cd $directoryName
+for searchTwitterOutputFile in search_API_output*UTC.csv; do
+	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
+	filenameLength=${#searchTwitterOutputFile}
+	extension=${searchTwitterOutputFile:(-4)}
+	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
+	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
+	newFilename=$filenameNoExtension"_3hr_"$extension
+	# echo $newFilename # DEBUG: print the new filename to the console
+	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
+done
+cd ..
+
+echo "Pausing for 3 hours. 6 hour SearchTwitter check to be done afterwards."
+sleep 3h # 6 hours after the streaming
+php searchTwitter.php $directoryName
+
+cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
 	filenameLength=${#searchTwitterOutputFile}
@@ -55,26 +76,64 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
+cd ..
 
-echo "Pausing for 6 hours. 12 hour SearchTwitter check to be done afterwards."
-sleep 6h # 12 hours after the streaming
+echo "Pausing for 3 hours. 9 hour SearchTwitter check to be done afterwards."
+sleep 3h # 9 hours after the streaming
 php searchTwitter.php $directoryName
 
+cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
 	filenameLength=${#searchTwitterOutputFile}
 	extension=${searchTwitterOutputFile:(-4)}
 	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
 	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
-	newFilename=$filenameNoExtension"_8hr_"$extension
+	newFilename=$filenameNoExtension"_9hr_"$extension
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
+cd ..
 
-echo "Pausing for 6 hours. 18 hour SearchTwitter check to be done afterwards."
-sleep 6h # 18 hours after the streaming
+echo "Pausing for 3 hours. 12 hour SearchTwitter check to be done afterwards."
+sleep 3h # 12 hours after the streaming
 php searchTwitter.php $directoryName
 
+cd $directoryName
+for searchTwitterOutputFile in search_API_output*UTC.csv; do
+	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
+	filenameLength=${#searchTwitterOutputFile}
+	extension=${searchTwitterOutputFile:(-4)}
+	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
+	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
+	newFilename=$filenameNoExtension"_12hr_"$extension
+	# echo $newFilename # DEBUG: print the new filename to the console
+	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
+done
+cd ..
+
+echo "Pausing for 3 hours. 15 hour SearchTwitter check to be done afterwards."
+sleep 3h # 15 hours after the streaming
+php searchTwitter.php $directoryName
+
+cd $directoryName
+for searchTwitterOutputFile in search_API_output*UTC.csv; do
+	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
+	filenameLength=${#searchTwitterOutputFile}
+	extension=${searchTwitterOutputFile:(-4)}
+	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
+	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
+	newFilename=$filenameNoExtension"_15hr_"$extension
+	# echo $newFilename # DEBUG: print the new filename to the console
+	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
+done
+cd ..
+
+echo "Pausing for 3 hours. 18 hour SearchTwitter check to be done afterwards."
+sleep 3h # 18 hours after the streaming
+php searchTwitter.php $directoryName
+
+cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
 	filenameLength=${#searchTwitterOutputFile}
@@ -85,11 +144,30 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
+cd ..
 
-echo "Pausing for 6 hours. 24 hour SearchTwitter check to be done afterwards."
-sleep 6h # 24 hours after the streaming
+echo "Pausing for 3 hours. 21 hour SearchTwitter check to be done afterwards."
+sleep 3h # 21 hours after the streaming
 php searchTwitter.php $directoryName
 
+cd $directoryName
+for searchTwitterOutputFile in search_API_output*UTC.csv; do
+	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
+	filenameLength=${#searchTwitterOutputFile}
+	extension=${searchTwitterOutputFile:(-4)}
+	filenameNoExtension=${searchTwitterOutputFile:0:`expr $filenameLength - 4`}
+	# echo $filenameNoExtension # DEBUG: check that the expression above evaluated correctly
+	newFilename=$filenameNoExtension"_21hr_"$extension
+	# echo $newFilename # DEBUG: print the new filename to the console
+	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
+done
+cd ..
+
+echo "Pausing for 3 hours. 24 hour SearchTwitter check to be done afterwards."
+sleep 3h # 24 hours after the streaming
+php searchTwitter.php $directoryName
+
+cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
 	filenameLength=${#searchTwitterOutputFile}
@@ -100,4 +178,4 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $newFilename # DEBUG: print the new filename to the console
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
-
+cd ..
