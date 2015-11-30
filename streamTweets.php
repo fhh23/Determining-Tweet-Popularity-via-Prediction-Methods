@@ -79,9 +79,9 @@ function my_streaming_callback($data, $length, $metrics)
 	{
 		// Maintain a count of the numbers of tweets in an output file
 		global $outputFileDatapointCounter; global $outputFilesListFile;
-		if ($outputFileDatapointCounter > 17999) 
+		if ($outputFileDatapointCounter > 14999) 
 		{
-			echo "18,000 tweets! Pausing for 16 minutes and then starting new file...\n";
+			echo "15,000 tweets! Pausing for 16 minutes and then starting new file...\n";
 			// TODO: Move this code to after writing the tweet to the data file
 			return true; // Exit the streaming program
 		}
@@ -410,8 +410,9 @@ if (arsort($hashtagFrequencies) === FALSE)
 	// FALSE indicates that the arsort function was unsuccessful
 }
 // Print a list of the 10 most popular hashtags and their frequencies to the specified file
+print_r(array_slice($hashtagFrequencies, 0, 10, TRUE), TRUE); # TODO: remove if this starts to print to the hashtagAnalysis file
 $hashtagFreqHumanReadable = print_r(array_slice($hashtagFrequencies, 0, 10, TRUE), TRUE);
-if (file_put_contents($hashtagAnalysisFile, "{$$hashtagFreqHumanReadable}" . "\n", FILE_APPEND) === FALSE)
+if (file_put_contents($hashtagAnalysisFile, "{$hashtagFreqHumanReadable}" . "\n", FILE_APPEND) === FALSE)
 {
 	// FALSE indicates that an error occurred during the fwrite operation
 }
