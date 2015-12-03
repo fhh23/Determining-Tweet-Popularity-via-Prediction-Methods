@@ -189,7 +189,9 @@ function my_streaming_callback($data, $length, $metrics)
 		{
 			foreach($entities['user_mentions'] as $userMentions)
 			{
-				$outputString = "{$outputString}" . "{$userMentions['name']}" . ";";
+				// Remove commas from the usernames and replace the commas with blank spaces
+				$processedUsername = str_replace(',', '', $userMentions['name']);
+				$outputString = "{$outputString}" . "{$processedUsername}" . ";";
 			}
 			unset($userMentions);
 			$outputString = rtrim($outputString, ';');
