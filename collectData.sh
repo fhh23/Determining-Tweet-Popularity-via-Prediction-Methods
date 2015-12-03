@@ -7,7 +7,7 @@
 #        one data file of output per 15,000 tweets. Subsequenty searches for each Tweet
 #        and reports on the new number of retweets and favorites.
 
-end=$((SECONDS+21600)) # 6 hour time limit on the script
+endDC=$((SECONDS+21600)) # 6 hour time limit on the data collection
 
 currentTime=$(date "+%Y-%m-%d-%H%M%S")
 currentTime=$currentTime"ETC"
@@ -29,7 +29,7 @@ hashtagAnalysisFilename=hashtagFrequencyAnalysis.txt
 
 # Run the program until it reaches the time limit
 # (while loop prevents any data collection from beginning after the time limit)
-while [ $SECONDS -lt $end ]; do
+while [ $SECONDS -lt $endDC ]; do
 
 	echo "Start time of data collection program: "$((SECONDS)) # DEBUG: data collection time statistics
 
@@ -43,11 +43,15 @@ while [ $SECONDS -lt $end ]; do
 	sleep 16m
 	
 done
+echo "Data collection complete at " $(date "+%m-%d-%H%M%S") "Starting searches in 3 hours..."
 
-echo "Pausing for 3 hours. 3 hour SearchTwitter check to be done afterwards."
-sleep 3h # 3 hours after the streaming
+sleep 3h # Pause for 3 hours after the streaming
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 3 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteSixHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -60,11 +64,18 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 3 hour search."
 
-echo "Pausing for 3 hours. 6 hour SearchTwitter check to be done afterwards."
-sleep 3h # 6 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteSixHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 6 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteNineHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -77,11 +88,18 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 6 hour search."
 
-echo "Pausing for 3 hours. 9 hour SearchTwitter check to be done afterwards."
-sleep 3h # 9 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteNineHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 9 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteTwelveHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -94,11 +112,18 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 9 hour search."
 
-echo "Pausing for 3 hours. 12 hour SearchTwitter check to be done afterwards."
-sleep 3h # 12 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteTwelveHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 12 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteFifteenHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -111,11 +136,18 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 12 hour search."
 
-echo "Pausing for 3 hours. 15 hour SearchTwitter check to be done afterwards."
-sleep 3h # 15 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteFifteenHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 15 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteEighteenHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -128,11 +160,18 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 15 hour search."
 
-echo "Pausing for 3 hours. 18 hour SearchTwitter check to be done afterwards."
-sleep 3h # 18 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteEighteenHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 18 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteTwentyOneHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -145,11 +184,18 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 18 hour search."
 
-echo "Pausing for 3 hours. 21 hour SearchTwitter check to be done afterwards."
-sleep 3h # 21 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteTwentyOneHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 21 hour search."
+# Start the next three hour timer until the next search
+endDelayExecuteTwentyFourHr=$((SECONDS+10800))
+
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -162,11 +208,15 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 21 hour search."
 
-echo "Pausing for 3 hours. 24 hour SearchTwitter check to be done afterwards."
-sleep 3h # 24 hours after the streaming
+# Delay until the timer runs out
+while [ $SECONDS -lt $endDelayExecuteTwentyFourHr ]; do
+:
+done
+
+echo "[ " $(date "+%H:%M:%S") " ] Begin 24 hour search."
 php searchTwitter.php $directoryName
-
 cd $directoryName
 for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	# echo $searchTwitterOutputFile # DEBUG: print all filenames affected by this for loop
@@ -179,3 +229,4 @@ for searchTwitterOutputFile in search_API_output*UTC.csv; do
 	mv $searchTwitterOutputFile $newFilename # Change the name of the output file to reflect the search time
 done
 cd ..
+echo "[ " $(date "+%H:%M:%S") " ] End 24 hour search."
