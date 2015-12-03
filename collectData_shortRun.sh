@@ -27,8 +27,9 @@ hashtagAnalysisFilename=hashtagFrequencyAnalysis.txt
 
 # Call the PHP program to stream 15,000 tweets and output them to a data_collection file
 # Provide the directory as an argument so the program knows where to put the output files
+echo "Data collection starting at " $(date "+%m-%d-%H:%M:%S") "..."
 php streamTweets.php $directoryName $searchIDStringsNameStorage $hashtagAnalysisFilename
-echo "Data collection complete at " $(date "+%m-%d-%H%M%S") "Starting searches in 10 minutes..."
+echo "Data collection complete at " $(date "+%m-%d-%H:%M:%S") "Starting searches in 10 minutes..."
 
 sleep 10m # Pause for 10 minutes after the streaming
 

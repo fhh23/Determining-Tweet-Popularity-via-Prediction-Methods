@@ -411,7 +411,7 @@ if (arsort($hashtagFrequencies) === FALSE)
 }
 // Print a list of the 10 most popular hashtags and their frequencies to the specified file
 print_r(array_slice($hashtagFrequencies, 0, 10, TRUE), TRUE); # TODO: remove if this starts to print to the hashtagAnalysis file
-$hashtagFreqHumanReadable = print_r(array_slice($hashtagFrequencies, 0, 10, TRUE), TRUE);
+$hashtagFreqHumanReadable = print_r(array_slice($hashtagFrequencies, 0, 20, TRUE), TRUE);
 if (file_put_contents($hashtagAnalysisFile, "{$hashtagFreqHumanReadable}" . "\n", FILE_APPEND) === FALSE)
 {
 	// FALSE indicates that an error occurred during the fwrite operation
