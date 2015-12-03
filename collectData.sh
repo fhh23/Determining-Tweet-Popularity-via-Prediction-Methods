@@ -33,7 +33,7 @@ while [ $SECONDS -lt $endDC ]; do
 
 	echo "Start time of data collection program: "$((SECONDS)) # DEBUG: data collection time statistics
 
-	# Call the PHP program to stream 18,000 tweets and output them to a data_collection file
+	# Call the PHP program to stream 15,000 tweets and output them to a data_collection file
 	# Provide the directory as an argument so the program knows where to put the output files
 	php streamTweets.php $directoryName $searchIDStringsNameStorage $hashtagAnalysisFilename
 	
