@@ -10,7 +10,7 @@
 endDC=$((SECONDS+21600)) # 6 hour time limit on the data collection
 
 currentTime=$(date "+%Y-%m-%d-%H%M%S")
-currentTime=$currentTime"ETC"
+currentTime=$currentTime"EST"
 
 # Create a directory for the streaming session
 directoryPrefix=streaming_session_

@@ -8,7 +8,7 @@
 #        60 minutes afterwards and reports on the new number of retweets and favorites.
 
 currentTime=$(date "+%Y-%m-%d-%H%M%S")
-currentTime=$currentTime"ETC"
+currentTime=$currentTime"EST"
 
 # Create a directory for the streaming session
 directoryPrefix=streaming_session_
@@ -25,7 +25,7 @@ searchIDStringsNameStorage=$searchIDStringsNameStoragePrefix$currentTime".txt"
 
 hashtagAnalysisFilename=hashtagFrequencyAnalysis.txt
 
-# Call the PHP program to stream 15,000 tweets and output them to a data_collection file
+# Call the PHP program to stream 15 minutes worth of tweets and output them to a data_collection file
 # Provide the directory as an argument so the program knows where to put the output files
 echo "Data collection starting at " $(date "+%m-%d-%H:%M:%S") "..."
 php streamTweets.php $directoryName $searchIDStringsNameStorage $hashtagAnalysisFilename
