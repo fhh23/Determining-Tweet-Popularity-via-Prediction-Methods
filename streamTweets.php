@@ -28,7 +28,6 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-// $time_limit = 7200; // 2 hour data collection (use as a timeout if the search is taking too long)
 $time_limit = 900; // Short run: 15 minute data collection
 set_time_limit($time_limit + 30);
 
@@ -58,7 +57,7 @@ function my_streaming_callback($data, $length, $metrics)
 	if ( $exec_time > $time_limit )
 	{
 		// BEGIN DEBUG
-		echo "Reached end of time limit!";
+		echo "Reached end of time limit! ";
 		// END DEBUG
 		return true;
 	}
@@ -83,7 +82,6 @@ function my_streaming_callback($data, $length, $metrics)
 		if ($outputFileDatapointCounter > 14999) 
 		{
 			echo "15,000 tweets! Pausing for 16 minutes and then starting new file...\n";
-			// TODO: Move this code to after writing the tweet to the data file
 			return true; // Exit the streaming program
 		}
 		else
@@ -407,13 +405,12 @@ $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
 
 // Sort the hashtag frequency analysis array for output purposes
-echo "Streaming complete. Performing all end of script processing.\n"; // DEBUG STMT (remove)
+echo "Streaming complete. Performing all end of script processing.\n";
 if (arsort($hashtagFrequencies) === FALSE)
 {
 	// FALSE indicates that the arsort function was unsuccessful
 }
-// Print a list of the 10 most popular hashtags and their frequencies to the specified file
-print_r(array_slice($hashtagFrequencies, 0, 10, TRUE), TRUE); # TODO: remove if this starts to print to the hashtagAnalysis file
+// Print a list of the 20 most popular hashtags and their frequencies to the specified file
 $hashtagFreqHumanReadable = print_r(array_slice($hashtagFrequencies, 0, 20, TRUE), TRUE);
 if (file_put_contents($hashtagAnalysisFile, "{$hashtagFreqHumanReadable}" . "\n", FILE_APPEND) === FALSE)
 {

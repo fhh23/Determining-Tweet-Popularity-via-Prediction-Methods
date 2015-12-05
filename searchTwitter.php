@@ -144,22 +144,22 @@ elseif (strcmp($filenameParts[0], 'streaming') == 0)
 	$initialRun = 1;
 	while(!feof($searchFileListFile))
 	{		
-		// initialRun variable prevents the pause from occurring before the first search
-		if ($initialRun == 1)
-		{
-			$initialRun = 0;
-		}
-		else
-		{
-			// Pause the program for 16 minutes to abide by the Twitter API Rate Limit
-			echo "Pausing the program for 16 minutes to follow Twitter API Rate Limit...\n";
-			sleep(960);
-			echo "Restarting the program and performing the next search!\n";
-		}
-		
 		$filename = fgets($searchFileListFile);
 		if ((strcmp($filename, PHP_EOL) != 0) & (strcmp($filename, "\n") != 0) & (strcmp($filename, "\r") != 0) & (strcmp($filename, "") != 0))
 		{
+			// initialRun variable prevents the pause from occurring before the first search
+			if ($initialRun == 1)
+			{
+				$initialRun = 0;
+			}
+			else
+			{
+				// Pause the program for 16 minutes to abide by the Twitter API Rate Limit
+				echo "Pausing the program for 16 minutes to follow Twitter API Rate Limit...\n";
+				sleep(960);
+				echo "Restarting the program and performing the next search!\n";
+			}
+		
 			$filename = substr($filename, 0, -1); // remove the newline character in the filename
 			// TODO: remove the echo to the console use for debugging purposes
 			echo "Processing file " . "{$filename}" . "...\n";
