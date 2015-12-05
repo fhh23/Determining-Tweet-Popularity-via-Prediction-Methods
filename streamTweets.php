@@ -28,7 +28,8 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-$time_limit = 7200; // 2 hour data collection (use as a timeout if the search is taking too long)
+// $time_limit = 7200; // 2 hour data collection (use as a timeout if the search is taking too long)
+$time_limit = 900; // Short run: 15 minute data collection
 set_time_limit($time_limit + 30);
 
 // Set the comma separate list of longitude/latitude pairs
