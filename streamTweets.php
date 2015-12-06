@@ -28,7 +28,7 @@ $params['language'] = 'en'; // Ensures that the Tweets are in English
 
 // Start timer
 $time_pre = microtime(true);
-$time_limit = 1800; // 30 minute data collection
+$time_limit = 900; // Short run: 15 minute data collection
 set_time_limit($time_limit + 30);
 
 // Set the comma separate list of longitude/latitude pairs
@@ -56,53 +56,44 @@ function my_streaming_callback($data, $length, $metrics)
 	global $time_limit;
 	if ( $exec_time > $time_limit )
 	{
+		// BEGIN DEBUG
+		echo "Reached end of time limit! ";
+		// END DEBUG
 		return true;
 	}
 
 	// Use the filename created before the streaming request post
-	global $outputFile;
+	global $outputFile; global $searchAPIFile;
+	// Use the previously created global variable to track hashtag values for frequency analysis
+	global $hashtagFrequencies;
 
 	// Converts the JSON string to a PHP variable 
 	// (and converts the output into an associative array)
 	$data = json_decode($data, true); 
-	// Only prints the tweet information if $data has valid contents
-	// and the tweet is not already a retweet
+	
+	// Only prints the tweet information if $data has valid contents,
+	// the tweet is not already a retweet, and the user has more than 500 followers
 	$retweetedStatus = $data['retweeted_status'];
 	$user = $data['user'];
 	if((!is_null($data['text'])) & (strcmp($retweetedStatus['id_str'], '') == 0) & ($user['followers_count'] > 500))
 	{
-		// Attempts to replace all newline characters in the tweets with an empty string
-		$newlineChars = array( PHP_EOL, '\n', '\r' );
-		// $data['text'] = str_replace(PHP_EOL, '', $data['text']);
-		$data['text'] = str_replace($newlineChars, '', $data['text']);
-		
-		// Create a data dump to have a log of all information 
-		// provided for each tweet
-		// Call to the streamTweets.php function should be formatted as
-		// "php streamTwitter.php > [ data_dump_filename ]"
-		print_r($data); 
-		
-		// Save any fields Array fields into separate variables for 
-		// easier parsing
-		$entities = $data['entities'];
-		$place = $data['place'];
-		
-		/*
-		* Comma pre-processing: all commas needed to be removed 
-		* or re-encoded to not confuse the CSV file format
-		*/
-		
-		// Substitude the HTML comma code for any comma in text
-		$data['text'] = str_replace(',', '&#44;', $data['text']); 
-		// Remove the commas in other fields and replace with spaces or empty characters
-		$user['name'] = str_replace(',', '', $user['name']);
-		$place['name'] = str_replace(',', '', $place['name']);
+		// Maintain a count of the numbers of tweets in an output file
+		global $outputFileDatapointCounter; global $outputFilesListFile;
+		if ($outputFileDatapointCounter > 14999) 
+		{
+			echo "15,000 tweets! Pausing for 16 minutes and then starting new file...\n";
+			return true; // Exit the streaming program
+		}
+		else
+		{
+			$outputFileDatapointCounter = $outputFileDatapointCounter + 1;
+		}
 		
 		// Add the id_str to the global variable to be passed to the Search API
-		global $searchAPIFile; global $idStrCount; global $idStrString;
+		global $idStrCount; global $idStrString;
 		if ($idStrCount > 98)
 		{
-			echo "Search API Tweet Limit Reached. Printing variable to file!";
+			# echo "Search API Tweet Limit Reached. Printing variable to file!\n";
 			$idStrString = "{$idStrString}" . "," ."{$data['id_str']}" . "\n\n";
 			if (file_put_contents($searchAPIFile, $idStrString, FILE_APPEND) === FALSE)
 			{
@@ -122,6 +113,33 @@ function my_streaming_callback($data, $length, $metrics)
 			$idStrCount = $idStrCount + 1;
 			$idStrString = "{$idStrString}" . "," . "{$data['id_str']}";
 		}
+		
+		// Attempts to replace all newline characters in the tweets with an empty string
+		$newlineChars = array( PHP_EOL, '\n', '\r' );
+		// $data['text'] = str_replace(PHP_EOL, '', $data['text']);
+		$data['text'] = str_replace($newlineChars, '', $data['text']);
+		
+		// Create a data dump to have a log of all information 
+		// provided for each tweet
+		// Call to the streamTweets.php function should be formatted as
+		// "php streamTwitter.php > [ data_dump_filename ]"
+		// print_r($data); 
+		
+		// Save any fields Array fields into separate variables for 
+		// easier parsing
+		$entities = $data['entities'];
+		$place = $data['place'];
+		
+		/*
+		* Comma pre-processing: all commas needed to be removed 
+		* or re-encoded to not confuse the CSV file format
+		*/
+		
+		// Substitude the HTML comma code for any comma in text
+		$data['text'] = str_replace(',', '&#44;', $data['text']); 
+		// Remove the commas in other fields and replace with spaces or empty characters
+		$user['name'] = str_replace(',', '', $user['name']);
+		$place['name'] = str_replace(',', '', $place['name']);
 		
 		
 		/* BEGIN FEATURE PRINTING */
@@ -170,7 +188,9 @@ function my_streaming_callback($data, $length, $metrics)
 		{
 			foreach($entities['user_mentions'] as $userMentions)
 			{
-				$outputString = "{$outputString}" . "{$userMentions['name']}" . ";";
+				// Remove commas from the usernames and replace the commas with blank spaces
+				$processedUsername = str_replace(',', '', $userMentions['name']);
+				$outputString = "{$outputString}" . "{$processedUsername}" . ";";
 			}
 			unset($userMentions);
 			$outputString = rtrim($outputString, ';');
@@ -184,6 +204,16 @@ function my_streaming_callback($data, $length, $metrics)
 			{
 				$outputString = "{$outputString}" . "{$hashtags['text']}" . ";";
 				$hashtagCount = $hashtagCount + 1;
+				
+				// Frequency analysis of hashtags
+				if (array_key_exists($hashtags['text'], $hashtagFrequencies))
+				{
+					$hashtagFrequencies[$hashtags['text']] = $hashtagFrequencies[$hashtags['text']] + 1;
+				}
+				else
+				{
+					$hashtagFrequencies[$hashtags['text']] = 1;
+				}
 			}
 			unset($hashtags);
 			$outputString = rtrim($outputString, ';');
@@ -332,13 +362,26 @@ $tmhOAuth = new tmhOAuth($secretArray);
 // Get tweets
 // ------------------------------------------
 
-// Create the file to which the data will be written
-$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
-// print_r($outputFile);
-$searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
-// print_r($searchAPIFile);
+// Store the inputs to the program from the collectData shell script
+$outputDir = $argv[1];
+$outputFilesListFile = $argv[2];
+$hashtagAnalysisFile=$argv[3];
+chdir($outputDir);
 
-// Create the variables related to building for the Search API
+// Create the files to which the data will be written
+$outputFile = "data_collection_output_" . date('Y-m-d-hisT') . ".csv";
+$searchAPIFile = "search_idStrings_" . date('Y-m-d-hisT') . ".txt";
+// Keep track of all the file names used in the streaming session to pass to the searchTwitter PHP program
+if (file_put_contents($outputFilesListFile, "{$searchAPIFile}" . "\n", FILE_APPEND) === FALSE)
+{
+	// FALSE indicates that an error occurred during the fwrite operation
+}
+
+// Create a variable for the number of tweets currently in the output file data
+$outputFileDatapointCounter = 0;
+// Create a variable for frequency analysis of hashtags used in the stream data
+$hashtagFrequencies = array();
+// Create the variables related to building the queries for the Search API
 $idStrCount = 0;
 $idStrString = '';
 
@@ -360,5 +403,21 @@ if (file_put_contents($outputFile, $dataHeaders) === FALSE)
 
 $url = 'https://stream.twitter.com/1/statuses/filter.json';
 $tmhOAuth->streaming_request('POST', $url, $params, 'my_streaming_callback');
+
+// Sort the hashtag frequency analysis array for output purposes
+echo "Streaming complete. Performing all end of script processing.\n";
+if (arsort($hashtagFrequencies) === FALSE)
+{
+	// FALSE indicates that the arsort function was unsuccessful
+}
+// Print a list of the 20 most popular hashtags and their frequencies to the specified file
+$hashtagFreqHumanReadable = print_r(array_slice($hashtagFrequencies, 0, 20, TRUE), TRUE);
+if (file_put_contents($hashtagAnalysisFile, "{$hashtagFreqHumanReadable}" . "\n", FILE_APPEND) === FALSE)
+{
+	// FALSE indicates that an error occurred during the fwrite operation
+}
+
+// Change directories back to the calling directory
+chdir("..");
 
 ?>
