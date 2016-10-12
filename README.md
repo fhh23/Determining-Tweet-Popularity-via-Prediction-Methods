@@ -25,6 +25,9 @@ Project Members: Farhan Hormasji and Bonnie Reiff
 
 2. Classification Program: The classification program requires a minimum Matlab version of R2011a. There is no required folder structure as long as the appropriate path to the data file is provided in the code.
 
+## Project Reports ##
+1. A Model for Determining Tweet Popularity via Prediction Methods.pdf: This is the formal paper on the completed project
+2. TwitterDataMining_Presentation.pdf: This is a short presentation summarizing the goal of this project, implementation, and key results
 
 ## Abstract ##
 With the spike in popularity of social media sites over the past 10 years, it is important for some to leverage these sites in order to communicate information to a large user-base. This project focuses on the Twitter social networking service and attempts to answer two questions. The first goal of the project is to determine the features available through the public Twitter API that contribute the most to a particular Tweet’s popularity. Secondly, the project aims to expand on the knowledge gained from the first objective to determine whether the contributing features can determine whether a Tweet will be “popular” after a designated period of time, where popularity is defined by the number of times a Tweet has been “Favorited.” The project uses a stream of Tweets collected using the Twitter Public Stream API. After labeling the data as “popular” or “not popular”, the project then uses sequential feature selection and a binary support vector machine (SVM) classifier with k-fold cross validation to achieve the two objectives. The analysis reveals that if you know the number of URLs in a Tweet, the favorite count of a Tweet after an hour, and if the Tweet under observation quoted another Tweet, then you have approximately 97% chance of correctly predicting if a Tweet will be popular or not using our trained SVM model.
